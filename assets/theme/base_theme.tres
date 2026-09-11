@@ -1,0 +1,10 @@
+[gd_resource type="Theme" format=3 uid="uid://ioydbkdykfmq"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3wenv"]
+bg_color = Color(0.9607843, 0.88235295, 0.6901961, 1)
+
+[resource]
+Button/font_sizes/font_size = 28
+Label/colors/font_color = Color(0.08627451, 0.12941177, 0.36078432, 1)
+Label/font_sizes/font_size = 32
+Panel/styles/panel = SubResource("StyleBoxFlat_3wenv")

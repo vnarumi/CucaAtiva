@@ -1,0 +1,21 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c 'import json,sys;d=json.load(sys.stdin);f=(d.get(\"tool_input\") or {}).get(\"file_path\") or (d.get(\"tool_response\") or {}).get(\"filePath\") or \"\";(f.endswith(\".gd\") or f.endswith(\".tscn\")) and print(json.dumps({\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"Godot resource edited via filesystem tools, not godot-ai MCP tools. Reload or re-attach in the live editor (scene_open or script_attach) before trusting test_run or project_run - preloaded GDScript can go stale after direct file edits.\"}}))' 2>/dev/null || true",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python3 -c 'import json,sys;d=json.load(sys.stdin);f=((d.get(\"tool_input\") or {}).get(\"file_path\") or (d.get(\"tool_response\") or {}).get(\"filePath\") or \"\").replace(chr(92),\"/\");(\"scripts/core/\" in f and f.endswith(\".gd\")) and print(json.dumps({\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"scripts/core file changed - this folder holds the RN01-RN06 scoring/board rules. Add or update a matching tests/test_*.gd (McpTestSuite) and run test_run before calling the task done.\"}}))' 2>/dev/null || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
