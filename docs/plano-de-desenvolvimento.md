@@ -1052,3 +1052,43 @@ Usuário forneceu uma pasta com 30 fotos de animal isoladas (fundo branco, mesmo
   (40 cartas, 20 pares) carregou a grade inteira sem erro, incluindo o 20º ícone distinto
   (jacaré) na última carta. 57/57 testes automatizados passando (51 anteriores + 6 novos de
   `card_icons`).
+
+## Auditoria completa de requisitos + RF08 fechado (item 2 dos próximos passos, resolvido)
+Usuário pediu uma conferência de todos os RF/RNF/RN contra `requisitos.md`. Resultado:
+todos os RN (6/6) e a maioria dos RF/RNF bateram exatamente com o código (`score_rules.gd`/
+`game_manager.gd` conferidos linha a linha contra as fórmulas de RN01-RN04). Dois gaps reais
+foram encontrados:
+
+- **RF08 (Salvamento Automático) — parcial, agora fechado**: `SaveManager.autosave_in_progress()`
+  já salvava certinho ao fechar/perder foco, mas **nada no jogo chamava
+  `resume_in_progress()`** — o dado existia mas nunca era oferecido de volta ao jogador.
+  Corrigido: `main_menu.tscn` ganhou um botão "Continuar partida" (`ContinuarWrapper`, mesmo
+  padrão halo+`LimeButton`+Fredoka One dos outros botões) posicionado logo abaixo do Jogar,
+  **escondido por padrão** e só visível quando `SaveManager.has_in_progress()` é verdadeiro
+  (`main_menu.gd`, checado em `_ready()` — com um `return` adicionado logo após o redirect
+  do tutorial, já que não faz sentido checar isso numa tela que está prestes a trocar).
+  Ao pressionar, chama `SaveManager.resume_in_progress()` e vai direto pro tabuleiro,
+  pulando a seleção de dificuldade (o nível já vem do estado restaurado). `board.gd` não
+  precisou de nenhuma mudança — `_build_grid()` já usa `GameManager.matched`/`board`
+  restaurados corretamente pra desenhar cartas já resolvidas como reveladas/desabilitadas.
+  - Testado de ponta a ponta: forcei um autosave via uma linha temporária em `_ready()` do
+    tabuleiro (revertida depois), confirmei que o menu principal escondia o botão sem save
+    e mostrava depois de um autosave real, cliquei "Continuar partida" e confirmei que
+    voltou pro mesmo tabuleiro Fácil com a pontuação/estado certos. Como o teste usou
+    `autosave_in_progress()` de verdade (não um mock), ele gravou um `in_progress` de
+    mentira no `save_data.json` real do usuário — limpo manualmente depois (só o campo
+    `in_progress`, o histórico de partidas de verdade foi preservado). 57/57 testes
+    automatizados continuam passando (nenhuma lógica de `SaveManager`/`GameManager` mudou,
+    só a UI que já existia ganhou um consumidor).
+- **RNF10 (Compatibilidade Android) — continua bloqueado, não é possível resolver nesta
+  sessão**: exige Android SDK, JDK, keystore e export templates do Godot instalados
+  localmente, e não há uma ferramenta MCP pra configurar isso com segurança (o preset de
+  export carrega checksums/UIDs de template que só a UI do editor valida). Passos manuais
+  já documentados na Fase 7 — dependem do usuário, fora desta sessão.
+- **RNF09 (LGPD) — achado sem ação nesta sessão, de propósito**: o autoload de debug
+  `_mcp_game_helper` continua no `project.godot`. Isso é esperado e não deve ser removido
+  agora — ele só reage ao canal de debug remoto do Godot (inofensivo em qualquer build que
+  não seja rodada por mim conectado ao editor) e é exatamente o que permite toda essa sessão
+  de desenvolvimento acontecer. Só deve ser removido como ÚLTIMO passo antes do export de
+  release, depois que não precisar mais de conexão MCP — já documentado assim desde a
+  Fase 7, mantido de propósito.
