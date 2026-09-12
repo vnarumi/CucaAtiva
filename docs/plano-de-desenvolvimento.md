@@ -953,3 +953,54 @@ pra implementar com um jogo 2x2 de verdade, não só a imagem estática.
   cartas confirmaram o par certo desabilitando/"pop"-ando e a re-embaralhagem automática
   depois (novos nós de botão, textos resetados pra "?"), e "Entendi!" navegando de volta
   pro menu principal corretamente. 51/51 testes automatizados continuam passando.
+
+## Checkpoint: commit da fidelidade visual + reauditoria de acessibilidade
+Toda a fase de fidelidade visual (títulos sticker, Dificuldade, Tabuleiro, Configurações,
+Histórico, Pausa/Parabéns, Tutorial) foi commitada (`5485f25`, 31 arquivos) depois do
+usuário confirmar que o app está visualmente fiel ao protótipo. Antes de seguir pros
+próximos passos (ícones de carta reais, "continuar partida salva", export Android),
+reauditei RNF01-04 — a auditoria original é da Fase 8, anterior a toda essa fase visual.
+
+- **RNF01 (contraste ≥4.5:1)**: recalculado WCAG (luminância relativa) pra cada par
+  texto/fundo usado nas telas redesenhadas. Tudo passa com folga:
+  - Texto preto sobre os botões coloridos: `YellowButton` 14.1:1, `LimeButton` 12.1:1,
+    `RedButton` 7.4:1, `BlueButton` 8.6:1, `GreenButton` 6.0:1, `OrangeButton` 10.3:1.
+  - Texto navy sobre branco (cartas do tabuleiro, tabela do Histórico, lista de opções de
+    Configurações, card de instrução do Tutorial): 13.3:1.
+  - Checkmark verde (`#185702`) sobre creme e sobre branco: 7.2:1 e 8.7:1.
+  - **Único ponto sem 3:1** (não é falha de RNF01, que é sobre texto): a borda amarela
+    `#DFB838` da caixa de ícone contra o fundo branco interno dá só 1.9:1 — mas essa borda é
+    puramente decorativa (não é limite de um controle interativo nem carrega informação por
+    si só, o ícone dentro dela já é claramente visível), então não se aplica o critério de
+    contraste não-textual (WCAG 1.4.11) que exigiria 3:1. Registrado só pra referência
+    futura, não é uma pendência.
+- **RNF02 (tipografia ≥18sp)**: todo texto novo (labels de opção 28px, instrução do
+  tutorial 24px, tabela do histórico 28-30px, "DICA" 29px, pontuação/tempo da tela de
+  Parabéns 32px) segue bem acima do mínimo.
+- **RNF03 (toque ≥48x48dp)**: todos os novos botões interativos (opções de Configurações,
+  Voltar de todas as telas, cartas do mini-jogo do Tutorial, botões da tela de Parabéns,
+  botões da Pausa) têm `custom_minimum_size` explícito de pelo menos 48px de altura, a
+  maioria bem maior (74-158px).
+- **RNF04 (nada punitivo)**: nenhuma tela nova introduziu cronômetro regressivo, alarme ou
+  flash de cor; as animações usadas (pop de acerto, wobble de erro, re-embaralhagem do
+  tutorial) seguem o mesmo padrão suave já auditado na Fase 2/8.
+- Nenhuma correção foi necessária nesta rodada — só confirmação. `test_run` não precisou
+  rodar de novo (nenhum código de lógica mudou nesta reauditoria, só a fase visual anterior
+  já tinha os 51/51 confirmados).
+
+### Pendências que ficam (próximos passos, em ordem de prioridade sugerida)
+1. **Ícones reais de animal nas cartas do tabuleiro**: `board.gd` ainda mostra o número do
+   par como texto (`str(GameManager.board[i])`) em vez de um ícone — nunca foi ligado aos
+   PNGs em `assets/icons/cards/`. Só existem 9-10 ícones (`arara`, `arara_vermelha`,
+   `caracol`, `chita`, `coala`, `elefante`, `peixe_dourado`, `porco`, `spitz`, `urso`),
+   suficiente pra Fácil (8 pares) mas insuficiente pra Médio (15) e Difícil (20) — precisa
+   de mais ícones ou uma estratégia de fallback antes de religar isso.
+2. **"Continuar partida salva" no menu principal**: `SaveManager.resume_in_progress()`/
+   `has_in_progress()` existem desde a Fase 3, mas nada no menu principal expõe isso ao
+   jogador — hoje uma partida salva fica invisível.
+3. **Exportação Android (RNF10)**: ainda bloqueada nesta máquina (sem Android SDK/JDK/
+   templates instalados) — passos manuais já documentados na Fase 7, precisam ser feitos
+   pelo usuário fora desta sessão, incluindo remover o autoload `_mcp_game_helper` e
+   desabilitar o plugin Godot AI antes do build final.
+4. Testar em mais proporções de tela reais (celulares mais altos/estreitos que 412x917)
+   quando houver um dispositivo/emulador disponível.
