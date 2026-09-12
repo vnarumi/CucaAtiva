@@ -1004,3 +1004,51 @@ reauditei RNF01-04 — a auditoria original é da Fase 8, anterior a toda essa f
    desabilitar o plugin Godot AI antes do build final.
 4. Testar em mais proporções de tela reais (celulares mais altos/estreitos que 412x917)
    quando houver um dispositivo/emulador disponível.
+
+## Ícones reais de animal nas cartas do tabuleiro (item 1 dos próximos passos, resolvido)
+Usuário forneceu uma pasta com 30 fotos de animal isoladas (fundo branco, mesmo estilo dos
+9 ícones já existentes) — o suficiente pra cobrir os 20 pares do nível Difícil sem repetir.
+
+- 27 fotos novas processadas e renomeadas (português, `snake_case`) pra
+  `assets/icons/cards/`: `golfinho`, `caranguejo`, `sapo`, `borboleta`, `pombo`, `pardal`,
+  `girafa`, `leao`, `gato`, `vespa`, `cachorro`, `coelho`, `canario`, `arara_azul`, `vaca`,
+  `cavalo`, `jacare`, `hipopotamo`, `rinoceronte`, `leao_marinho`, `cavalo_marinho`, `pato`,
+  `porquinho_da_india`, `galinha`, `cabrito`, `ovelha`, `hamster` (mantidas como `.jpg`,
+  sem necessidade de converter pra `.png` — o Godot importa JPG normalmente como
+  Texture2D, e o `TextureRect` já escala/centraliza qualquer proporção). 3 fotos do lote
+  eram duplicatas de animais já existentes (elefante, peixe dourado, porco) e foram
+  descartadas.
+- Novo `scripts/core/animal_card_icons.gd` (`class_name MemoryCardIcons`, puro, sem
+  dependência de cena — mesmo padrão de `board_generator.gd`): `POOL` com as 36 imagens
+  (10 antigas + 26 novas) e `pick(count, rng)`, que embaralha o pool inteiro e retorna os
+  primeiros `count` — cada partida sorteia um subconjunto diferente dos 36, não sempre os
+  mesmos ícones nem sempre na mesma ordem. Testado em `tests/test_card_icons.gd` (6 casos:
+  pool sem duplicata, pool com pelo menos 20, `pick` retorna a quantidade certa, os ícones
+  sorteados são distintos entre si, só vêm do pool, e variam entre seeds diferentes).
+- `board.gd` (`_build_grid`): cada carta ganhou um `TextureRect` filho (escondido por
+  padrão) com a textura de `MemoryCardIcons.pick(pares)[GameManager.board[i]]` — antes o
+  texto revelado era só o número do índice do par (`str(GameManager.board[i])`). Extraído
+  `_reveal_card`/`_hide_card` (mostra/esconde o ícone e limpa/restaura o texto "?") e
+  reaproveitado em `_on_card_pressed`, `_on_match_failed` e `_on_dica_pressed` — o dado
+  central do jogo (`GameManager.board`, os ids de par) não mudou nada, só a representação
+  visual de cada id virou um ícone em vez de um número.
+- **Gotcha real do ambiente**: a 1ª tentativa de criar o script com `class_name CardIcons`
+  travou o editor num loop de "GDScript reload failed (error 43)" que **persistia mesmo
+  reescrevendo o conteúdo do zero** — só depois de várias rodadas de bisseção ficou claro
+  que era o **path do arquivo** que tinha ficado num estado de reload quebrado no cache de
+  scripts do editor (não o conteúdo, não o nome da classe em si — comprovado testando o
+  mesmo conteúdo num path novo, que funcionou de primeira). Corrigido apagando os arquivos
+  problemáticos (`card_icons.gd`, depois também `card_icon_pool.gd`, que herdou o problema
+  ao reusar path) e recriando do zero num path nunca usado
+  (`scripts/core/animal_card_icons.gd`, classe `MemoryCardIcons`). Vale lembrar como
+  solução futura: se um `script_create`/`script_patch` travar em "reload failed" mesmo com
+  conteúdo válido, o path em si pode estar com cache quebrado — apagar e recriar com um
+  nome de arquivo novo resolve, `filesystem_manage(op="scan")` sozinho não resolve.
+- Testado com o jogo rodando de verdade nas 3 dificuldades: Fácil mostrou ícones variados
+  (leão, ovelha, coala, hipopótamo, sapo, pombo, golfinho, entre outros) sem repetição
+  indevida, um par de sapos foi casado de propósito (posições identificadas via
+  `game_manage get_node_info` lendo a textura de cada carta ainda oculta) confirmando que
+  acerto mostra os dois ícones e mantém revelado (pontuação foi a 10), e o nível Difícil
+  (40 cartas, 20 pares) carregou a grade inteira sem erro, incluindo o 20º ícone distinto
+  (jacaré) na última carta. 57/57 testes automatizados passando (51 anteriores + 6 novos de
+  `card_icons`).

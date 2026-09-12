@@ -26,6 +26,7 @@ const DISABLED_MODULATE := Color(1, 1, 1, 0.5)
 @onready var win_time_label: Label = $WinOverlay/Layout/TimeLabel
 
 var _buttons: Array[Button] = []
+var _icons: Array[TextureRect] = []
 var _pending_indices: Array[int] = []
 
 
@@ -75,23 +76,42 @@ func _build_grid() -> void:
 	for child in grid.get_children():
 		child.queue_free()
 	_buttons.clear()
+	_icons.clear()
 	_pending_indices.clear()
 	var columns := _columns_for(GameManager.board.size())
 	grid.columns = columns
 	grid.add_theme_constant_override("h_separation", int(GRID_SEPARATION))
 	grid.add_theme_constant_override("v_separation", int(GRID_SEPARATION))
 	var card_size := _card_size_for(columns)
+	var pairs: int = GameManager.board.size() / 2
+	var icon_paths: Array = MemoryCardIcons.pick(pairs)
 	for i in GameManager.board.size():
 		var btn := Button.new()
 		btn.custom_minimum_size = card_size
 		btn.pivot_offset = card_size / 2.0
 		btn.theme_type_variation = &"CardButton"
 		btn.text = "?"
+		var icon := TextureRect.new()
+		icon.texture = load(icon_paths[GameManager.board[i]])
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.anchor_right = 1.0
+		icon.anchor_bottom = 1.0
+		icon.offset_left = 6.0
+		icon.offset_top = 6.0
+		icon.offset_right = -6.0
+		icon.offset_bottom = -6.0
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon.visible = false
+		btn.add_child(icon)
 		if GameManager.matched.has(i):
 			btn.disabled = true
+			btn.text = ""
+			icon.visible = true
 		btn.pressed.connect(_on_card_pressed.bind(i))
 		grid.add_child(btn)
 		_buttons.append(btn)
+		_icons.append(icon)
 
 
 func _card_size_for(columns: int) -> Vector2:
@@ -113,6 +133,16 @@ func _columns_for(card_count: int) -> int:
 			return 4
 
 
+func _reveal_card(index: int) -> void:
+	_buttons[index].text = ""
+	_icons[index].visible = true
+
+
+func _hide_card(index: int) -> void:
+	_buttons[index].text = "?"
+	_icons[index].visible = false
+
+
 func _on_card_pressed(index: int) -> void:
 	if _pending_indices.size() >= 2:
 		return
@@ -122,10 +152,10 @@ func _on_card_pressed(index: int) -> void:
 	# esta é a 2ª carta, flip_card resolve o par e emite match_found/
 	# match_failed de forma síncrona, então os handlers precisam ver os 2
 	# índices já registrados (senão o 2º card nunca volta a ficar oculto).
-	_buttons[index].text = str(GameManager.board[index])
+	_reveal_card(index)
 	_pending_indices.append(index)
 	if not GameManager.flip_card(index):
-		_buttons[index].text = "?"
+		_hide_card(index)
 		_pending_indices.erase(index)
 
 
@@ -145,7 +175,7 @@ func _on_match_failed() -> void:
 		_wobble_incorrect(_buttons[i])
 	await get_tree().create_timer(MISMATCH_REVEAL_SECONDS).timeout
 	for i in indices:
-		_buttons[i].text = "?"
+		_hide_card(i)
 	GameManager.clear_pending_flip()
 	_pending_indices.clear()
 	_refresh_dica_button()
@@ -215,13 +245,13 @@ func _on_dica_pressed() -> void:
 		return
 	_refresh_dica_button()
 	for i in pair:
-		_buttons[i].text = str(GameManager.board[i])
+		_reveal_card(i)
 	await get_tree().create_timer(HINT_REVEAL_SECONDS).timeout
 	for i in pair:
 		# Só esconde de novo se o jogador não tiver virado essa carta "pra
 		# valer" nesse meio-tempo (aí ela já está pendente/resolvida).
 		if not GameManager.matched.has(i) and not _pending_indices.has(i):
-			_buttons[i].text = "?"
+			_hide_card(i)
 
 
 func _refresh_dica_button() -> void:
