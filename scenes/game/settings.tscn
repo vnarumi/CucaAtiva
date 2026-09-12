@@ -1,10 +1,36 @@
 [gd_scene format=3 uid="uid://b1xouoneotidd"]
 
-[ext_resource type="Theme" uid="uid://ioydbkdykfmq" path="res://assets/theme/base_theme.tres" id="1_en3gw"]
+[ext_resource type="Theme" uid="uid://b5x4p43ewn0fj" path="res://assets/theme/base_theme.tres" id="1_en3gw"]
 [ext_resource type="Script" uid="uid://ctimmt3a4a7xn" path="res://scripts/ui/settings.gd" id="2_7hbhs"]
+[ext_resource type="FontFile" uid="uid://dykcomcv4lr1" path="res://assets/fonts/FredokaOne-Regular.ttf" id="3_i1rig"]
 [ext_resource type="Texture2D" uid="uid://thmx48m6dml8" path="res://assets/icons/ui/som.svg" id="3_t7dv6"]
 [ext_resource type="Texture2D" uid="uid://bhr6tvjr67bdn" path="res://assets/icons/ui/checkmark.svg" id="4_qunfc"]
 [ext_resource type="Texture2D" uid="uid://mm5kw04bk52w" path="res://assets/icons/ui/texto.svg" id="5_i1rig"]
+[ext_resource type="Texture2D" uid="uid://c8mgjgfo30sad" path="res://assets/icons/ui/seta_voltar.svg" id="7_ll5u5"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i1rig"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(0.8745098, 0.72156864, 0.21960784, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ll5u5"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(0.8745098, 0.72156864, 0.21960784, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
 
 [node name="Settings" type="Control" unique_id=499709253]
 layout_mode = 3
@@ -27,162 +53,417 @@ color = Color(0.9882353, 0.9098039, 0.69411767, 1)
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 32.0
+offset_right = -32.0
+theme_override_constants/separation = 32
 alignment = 1
 
 [node name="Title" type="Label" parent="Layout" unique_id=976140887]
 layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/outline_size = 48
+theme_override_constants/shadow_outline_size = 48
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 52
 text = "Configurações"
 horizontal_alignment = 1
 
 [node name="VolumeSection" type="VBoxContainer" parent="Layout" unique_id=637498619]
-custom_minimum_size = Vector2(420, 0)
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 3
 
-[node name="TitleRow" type="HBoxContainer" parent="Layout/VolumeSection" unique_id=1570731689]
+[node name="VolumeLabel" type="Label" parent="Layout/VolumeSection" unique_id=1615599836]
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="Icon" type="TextureRect" parent="Layout/VolumeSection/TitleRow" unique_id=687835019]
-custom_minimum_size = Vector2(36, 36)
-layout_mode = 2
-texture = ExtResource("3_t7dv6")
-stretch_mode = 5
-
-[node name="VolumeLabel" type="Label" parent="Layout/VolumeSection/TitleRow" unique_id=1615599836]
-layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 24
+theme_override_constants/shadow_outline_size = 24
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 32
 text = "Volume do jogo"
 horizontal_alignment = 1
 
-[node name="VolumeButtons" type="HBoxContainer" parent="Layout/VolumeSection" unique_id=1544029734]
+[node name="OptionsRow" type="HBoxContainer" parent="Layout/VolumeSection" unique_id=1544029734]
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 3
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="MudoButton" type="Button" parent="Layout/VolumeSection/VolumeButtons" unique_id=618259796]
-custom_minimum_size = Vector2(100, 100)
+[node name="IconWrapper" type="Control" parent="Layout/VolumeSection/OptionsRow" unique_id=1937266364]
+custom_minimum_size = Vector2(110, 122)
 layout_mode = 2
-theme_type_variation = &"YellowButton"
-text = "Mudo"
 
-[node name="Check" type="TextureRect" parent="Layout/VolumeSection/VolumeButtons/MudoButton" unique_id=2123945721]
+[node name="Halo" type="Panel" parent="Layout/VolumeSection/OptionsRow/IconWrapper" unique_id=1452960553]
 layout_mode = 0
-anchor_left = 1.0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -53.0
+offset_top = -59.0
+offset_right = 53.0
+offset_bottom = 59.0
+theme_type_variation = &"HaloRectPanel"
+
+[node name="IconBox" type="Panel" parent="Layout/VolumeSection/OptionsRow/IconWrapper" unique_id=777813193]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -53.0
+offset_top = -59.0
+offset_right = 53.0
+offset_bottom = 59.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_i1rig")
+
+[node name="Icon" type="TextureRect" parent="Layout/VolumeSection/OptionsRow/IconWrapper/IconBox" unique_id=165291912]
+modulate = Color(0, 0, 0, 1)
+layout_mode = 0
 anchor_right = 1.0
-offset_left = -34.0
-offset_top = 4.0
-offset_right = -4.0
-offset_bottom = 30.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
+texture = ExtResource("3_t7dv6")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="OptionsList" type="VBoxContainer" parent="Layout/VolumeSection/OptionsRow" unique_id=1165144031]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MudoButton" type="Button" parent="Layout/VolumeSection/OptionsRow/OptionsList" unique_id=618259796]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"ImageButton"
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 26
+text = " "
+
+[node name="Row" type="HBoxContainer" parent="Layout/VolumeSection/OptionsRow/OptionsList/MudoButton" unique_id=1662088641]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="OptionLabel" type="Label" parent="Layout/VolumeSection/OptionsRow/OptionsList/MudoButton/Row" unique_id=1480653238]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 14
+theme_override_constants/shadow_outline_size = 14
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 28
+text = "Desligado"
+vertical_alignment = 1
+
+[node name="Check" type="TextureRect" parent="Layout/VolumeSection/OptionsRow/OptionsList/MudoButton/Row" unique_id=2123945721]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("4_qunfc")
 stretch_mode = 5
 
-[node name="BaixoButton" type="Button" parent="Layout/VolumeSection/VolumeButtons" unique_id=348536522]
-custom_minimum_size = Vector2(100, 100)
+[node name="BaixoButton" type="Button" parent="Layout/VolumeSection/OptionsRow/OptionsList" unique_id=348536522]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-theme_type_variation = &"YellowButton"
-text = "Baixo"
+size_flags_horizontal = 3
+theme_type_variation = &"ImageButton"
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 26
+text = " "
 
-[node name="Check" type="TextureRect" parent="Layout/VolumeSection/VolumeButtons/BaixoButton" unique_id=1852456648]
+[node name="Row" type="HBoxContainer" parent="Layout/VolumeSection/OptionsRow/OptionsList/BaixoButton" unique_id=204198217]
 layout_mode = 0
-anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -34.0
-offset_top = 4.0
-offset_right = -4.0
-offset_bottom = 30.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="OptionLabel" type="Label" parent="Layout/VolumeSection/OptionsRow/OptionsList/BaixoButton/Row" unique_id=1135319804]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 14
+theme_override_constants/shadow_outline_size = 14
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 28
+text = "Médio"
+vertical_alignment = 1
+
+[node name="Check" type="TextureRect" parent="Layout/VolumeSection/OptionsRow/OptionsList/BaixoButton/Row" unique_id=1852456648]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("4_qunfc")
 stretch_mode = 5
 
-[node name="AltoButton" type="Button" parent="Layout/VolumeSection/VolumeButtons" unique_id=882619090]
-custom_minimum_size = Vector2(100, 100)
+[node name="AltoButton" type="Button" parent="Layout/VolumeSection/OptionsRow/OptionsList" unique_id=882619090]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-theme_type_variation = &"YellowButton"
+size_flags_horizontal = 3
+theme_type_variation = &"ImageButton"
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 26
+text = " "
+
+[node name="Row" type="HBoxContainer" parent="Layout/VolumeSection/OptionsRow/OptionsList/AltoButton" unique_id=223715000]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="OptionLabel" type="Label" parent="Layout/VolumeSection/OptionsRow/OptionsList/AltoButton/Row" unique_id=496323075]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 14
+theme_override_constants/shadow_outline_size = 14
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 28
 text = "Alto"
+vertical_alignment = 1
 
-[node name="Check" type="TextureRect" parent="Layout/VolumeSection/VolumeButtons/AltoButton" unique_id=906315997]
-layout_mode = 0
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -34.0
-offset_top = 4.0
-offset_right = -4.0
-offset_bottom = 30.0
+[node name="Check" type="TextureRect" parent="Layout/VolumeSection/OptionsRow/OptionsList/AltoButton/Row" unique_id=906315997]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("4_qunfc")
 stretch_mode = 5
 
 [node name="FontSizeSection" type="VBoxContainer" parent="Layout" unique_id=1532063421]
 layout_mode = 2
+size_flags_horizontal = 3
 
-[node name="TitleRow" type="HBoxContainer" parent="Layout/FontSizeSection" unique_id=1564096504]
+[node name="FontSizeLabel" type="Label" parent="Layout/FontSizeSection" unique_id=2075173532]
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="Icon" type="TextureRect" parent="Layout/FontSizeSection/TitleRow" unique_id=789851304]
-custom_minimum_size = Vector2(36, 36)
-layout_mode = 2
-texture = ExtResource("5_i1rig")
-stretch_mode = 5
-
-[node name="FontSizeLabel" type="Label" parent="Layout/FontSizeSection/TitleRow" unique_id=2075173532]
-layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 24
+theme_override_constants/shadow_outline_size = 24
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 32
 text = "Tamanho da letra"
 horizontal_alignment = 1
 
-[node name="FontSizeButtons" type="HBoxContainer" parent="Layout/FontSizeSection" unique_id=1322355664]
+[node name="OptionsRow" type="HBoxContainer" parent="Layout/FontSizeSection" unique_id=1322355664]
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 3
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="NormalButton" type="Button" parent="Layout/FontSizeSection/FontSizeButtons" unique_id=632210065]
-custom_minimum_size = Vector2(140, 100)
+[node name="IconWrapper" type="Control" parent="Layout/FontSizeSection/OptionsRow" unique_id=236133660]
+custom_minimum_size = Vector2(110, 122)
 layout_mode = 2
-theme_type_variation = &"YellowButton"
-text = "Normal"
 
-[node name="Check" type="TextureRect" parent="Layout/FontSizeSection/FontSizeButtons/NormalButton" unique_id=522528992]
+[node name="Halo" type="Panel" parent="Layout/FontSizeSection/OptionsRow/IconWrapper" unique_id=1993821864]
 layout_mode = 0
-anchor_left = 1.0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -53.0
+offset_top = -59.0
+offset_right = 53.0
+offset_bottom = 59.0
+theme_type_variation = &"HaloRectPanel"
+
+[node name="IconBox" type="Panel" parent="Layout/FontSizeSection/OptionsRow/IconWrapper" unique_id=982147781]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -53.0
+offset_top = -59.0
+offset_right = 53.0
+offset_bottom = 59.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ll5u5")
+
+[node name="Icon" type="TextureRect" parent="Layout/FontSizeSection/OptionsRow/IconWrapper/IconBox" unique_id=1616299517]
+modulate = Color(0, 0, 0, 1)
+layout_mode = 0
 anchor_right = 1.0
-offset_left = -34.0
-offset_top = 4.0
-offset_right = -4.0
-offset_bottom = 30.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
+texture = ExtResource("5_i1rig")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="OptionsList" type="VBoxContainer" parent="Layout/FontSizeSection/OptionsRow" unique_id=760456050]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PadraoButton" type="Button" parent="Layout/FontSizeSection/OptionsRow/OptionsList" unique_id=632210065]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"ImageButton"
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 26
+text = " "
+
+[node name="Row" type="HBoxContainer" parent="Layout/FontSizeSection/OptionsRow/OptionsList/PadraoButton" unique_id=1920789281]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="OptionLabel" type="Label" parent="Layout/FontSizeSection/OptionsRow/OptionsList/PadraoButton/Row" unique_id=401117175]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 14
+theme_override_constants/shadow_outline_size = 14
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 28
+text = "Padrão"
+vertical_alignment = 1
+
+[node name="Check" type="TextureRect" parent="Layout/FontSizeSection/OptionsRow/OptionsList/PadraoButton/Row" unique_id=522528992]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("4_qunfc")
 stretch_mode = 5
 
-[node name="GrandeButton" type="Button" parent="Layout/FontSizeSection/FontSizeButtons" unique_id=285560639]
-custom_minimum_size = Vector2(140, 100)
+[node name="GrandeButton" type="Button" parent="Layout/FontSizeSection/OptionsRow/OptionsList" unique_id=285560639]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-theme_type_variation = &"YellowButton"
+size_flags_horizontal = 3
+theme_type_variation = &"ImageButton"
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 26
+text = " "
+
+[node name="Row" type="HBoxContainer" parent="Layout/FontSizeSection/OptionsRow/OptionsList/GrandeButton" unique_id=1052042349]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="OptionLabel" type="Label" parent="Layout/FontSizeSection/OptionsRow/OptionsList/GrandeButton/Row" unique_id=1487880240]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 14
+theme_override_constants/shadow_outline_size = 14
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 28
 text = "Grande"
+vertical_alignment = 1
 
-[node name="Check" type="TextureRect" parent="Layout/FontSizeSection/FontSizeButtons/GrandeButton" unique_id=708358929]
-layout_mode = 0
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -34.0
-offset_top = 4.0
-offset_right = -4.0
-offset_bottom = 30.0
+[node name="Check" type="TextureRect" parent="Layout/FontSizeSection/OptionsRow/OptionsList/GrandeButton/Row" unique_id=708358929]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("4_qunfc")
 stretch_mode = 5
 
-[node name="VoltarButton" type="Button" parent="Layout" unique_id=1508981139]
-custom_minimum_size = Vector2(240, 64)
+[node name="MuitoGrandeButton" type="Button" parent="Layout/FontSizeSection/OptionsRow/OptionsList" unique_id=941124682]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"ImageButton"
+text = " "
+
+[node name="Row" type="HBoxContainer" parent="Layout/FontSizeSection/OptionsRow/OptionsList/MuitoGrandeButton" unique_id=369776591]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="OptionLabel" type="Label" parent="Layout/FontSizeSection/OptionsRow/OptionsList/MuitoGrandeButton/Row" unique_id=1542786626]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 14
+theme_override_constants/shadow_outline_size = 14
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 28
+text = "Muito Grande"
+vertical_alignment = 1
+
+[node name="Check" type="TextureRect" parent="Layout/FontSizeSection/OptionsRow/OptionsList/MuitoGrandeButton/Row" unique_id=1997657390]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("4_qunfc")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="VoltarWrapper" type="Control" parent="Layout" unique_id=1094725580]
+custom_minimum_size = Vector2(220, 96)
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="Halo" type="Panel" parent="Layout/VoltarWrapper" unique_id=1963275496]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_type_variation = &"HaloRectPanel"
+
+[node name="VoltarButton" type="Button" parent="Layout/VoltarWrapper" unique_id=1508981139]
+custom_minimum_size = Vector2(204, 80)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -102.0
+offset_top = -40.0
+offset_right = 102.0
+offset_bottom = 40.0
 size_flags_horizontal = 4
 theme_type_variation = &"RedButton"
-text = "Voltar"
+theme_override_constants/h_separation = 10
+theme_override_fonts/font = ExtResource("3_i1rig")
+theme_override_font_sizes/font_size = 28
+text = "VOLTAR"
+icon = ExtResource("7_ll5u5")
 
-[connection signal="pressed" from="Layout/VoltarButton" to="." method="_on_voltar_pressed"]
+[connection signal="pressed" from="Layout/VoltarWrapper/VoltarButton" to="." method="_on_voltar_pressed"]

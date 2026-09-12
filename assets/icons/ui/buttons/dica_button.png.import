@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://5u5iyv52eh8u"
-path="res://.godot/imported/historico.svg-e65ca150566f3f6f8eedaaf7a970aead.ctex"
+uid="uid://ds4ge6t2p6b7n"
+path="res://.godot/imported/dica_button.png-c00153242875fe3c14b3b12ab666af66.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/ui/historico.svg"
-dest_files=["res://.godot/imported/historico.svg-e65ca150566f3f6f8eedaaf7a970aead.ctex"]
+source_file="res://assets/icons/ui/buttons/dica_button.png"
+dest_files=["res://.godot/imported/dica_button.png-c00153242875fe3c14b3b12ab666af66.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

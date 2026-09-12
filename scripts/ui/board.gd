@@ -11,13 +11,19 @@ const GRID_SEPARATION := 2.0
 const GRID_SIDE_MARGIN := 32.0
 const MISMATCH_REVEAL_SECONDS := 0.6
 const HINT_REVEAL_SECONDS := 1.5
+const PRESS_SCALE := 0.92
+const PRESS_ANIM_SECONDS := 0.08
+const DISABLED_MODULATE := Color(1, 1, 1, 0.5)
 
-@onready var score_label: Label = $VBoxContainer/Header/ScoreLabel
+@onready var score_value_label: Label = $VBoxContainer/ScoreGroup/ScoreValueLabel
 @onready var grid: GridContainer = $VBoxContainer/CardGrid
-@onready var pausa_button: Button = $VBoxContainer/Header/PausaButton
-@onready var dica_button: Button = $VBoxContainer/Header/DicaButton
-@onready var dica_count_label: Label = $VBoxContainer/Header/DicaButton/Count
+@onready var pausa_button: Button = $VBoxContainer/Footer/PausaButton
+@onready var dica_button: Button = $VBoxContainer/Footer/DicaButton
+@onready var dica_count_label: Label = $VBoxContainer/Footer/DicaButton/Count
 @onready var pause_overlay: Control = $PauseOverlay
+@onready var win_overlay: Control = $WinOverlay
+@onready var win_score_label: Label = $WinOverlay/Layout/ScoreLabel
+@onready var win_time_label: Label = $WinOverlay/Layout/TimeLabel
 
 var _buttons: Array[Button] = []
 var _pending_indices: Array[int] = []
@@ -30,9 +36,39 @@ func _ready() -> void:
 	GameManager.game_won.connect(_on_game_won)
 	pausa_button.pressed.connect(_on_pausa_pressed)
 	dica_button.pressed.connect(_on_dica_pressed)
+	for btn in [pausa_button, dica_button]:
+		_update_pivot(btn)
+		btn.resized.connect(_update_pivot.bind(btn))
+		btn.button_down.connect(_on_image_button_down.bind(btn))
+		btn.button_up.connect(_on_image_button_up.bind(btn))
 	_build_grid()
 	_on_score_changed(GameManager.score)
 	_refresh_dica_button()
+
+
+## Botões de ícone completo (imagem única exportada do Figma, sombra/halo já
+## embutidos) não têm feedback visual nativo de "pressionado" — o Button por
+## trás é transparente em todos os estados. Compensa com uma leve animação de
+## escala, importante pro usuário idoso confirmar que o toque registrou.
+func _update_pivot(btn: Button) -> void:
+	btn.pivot_offset = btn.size / 2.0
+
+
+func _on_image_button_down(btn: Button) -> void:
+	var tween := create_tween()
+	tween.tween_property(btn, "scale", Vector2.ONE * PRESS_SCALE, PRESS_ANIM_SECONDS)
+
+
+func _on_image_button_up(btn: Button) -> void:
+	var tween := create_tween()
+	tween.tween_property(btn, "scale", Vector2.ONE, PRESS_ANIM_SECONDS)
+
+
+## Mesma imagem única não escurece sozinha quando o Button fica disabled —
+## sem isso o botão pareceria clicável mesmo quando não é.
+func _set_image_button_enabled(btn: Button, enabled: bool) -> void:
+	btn.disabled = not enabled
+	btn.modulate = Color.WHITE if enabled else DISABLED_MODULATE
 
 
 func _build_grid() -> void:
@@ -116,16 +152,18 @@ func _on_match_failed() -> void:
 
 
 func _on_score_changed(new_score: int) -> void:
-	score_label.text = "Pontuação: %d" % new_score
+	score_value_label.text = str(new_score)
 	_refresh_dica_button()
 
 
 func _on_game_won() -> void:
-	score_label.text = "Parabéns! Pontuação final: %d" % GameManager.score
 	for btn in _buttons:
 		btn.disabled = true
-	pausa_button.disabled = true
-	dica_button.disabled = true
+	_set_image_button_enabled(pausa_button, false)
+	_set_image_button_enabled(dica_button, false)
+	win_score_label.text = "Pontuação: %d" % GameManager.score
+	win_time_label.text = "Tempo: %s" % TimeFormat.mmss(GameManager.elapsed_seconds)
+	win_overlay.visible = true
 
 
 ## RF06: abre o menu de pausa. Pausar a árvore (get_tree().paused) já
@@ -143,19 +181,30 @@ func _on_continuar_pressed() -> void:
 
 
 ## RN06: reinicia a mesma dificuldade — zera progresso/cronômetro/pontuação
-## e reembaralha.
-func _on_reiniciar_pressed() -> void:
+## e reembaralha. Usado tanto pelo "Reiniciar" da Pausa quanto pelo "Jogar
+## novamente" da tela de Parabéns.
+func _restart_game() -> void:
 	GameManager.restart()
 	_build_grid()
 	_on_score_changed(GameManager.score)
-	pausa_button.disabled = false
+	_set_image_button_enabled(pausa_button, true)
 	get_tree().paused = false
 	pause_overlay.visible = false
+	win_overlay.visible = false
+
+
+func _on_reiniciar_pressed() -> void:
+	_restart_game()
+
+
+func _on_jogar_novamente_pressed() -> void:
+	_restart_game()
 
 
 func _on_sair_pressed() -> void:
 	get_tree().paused = false
 	pause_overlay.visible = false
+	win_overlay.visible = false
 	get_tree().change_scene_to_file("res://scenes/main_menu/main_menu.tscn")
 
 
@@ -178,7 +227,7 @@ func _on_dica_pressed() -> void:
 func _refresh_dica_button() -> void:
 	var remaining: int = GameManager.MAX_HINTS - GameManager.hints_used
 	dica_count_label.text = str(remaining)
-	dica_button.disabled = not GameManager.can_use_hint()
+	_set_image_button_enabled(dica_button, GameManager.can_use_hint())
 
 
 ## Feedback visual de acerto (RF03): um "pop" curto e suave, sem piscar.

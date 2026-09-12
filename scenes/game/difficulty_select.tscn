@@ -1,7 +1,9 @@
 [gd_scene format=3 uid="uid://dg6vo7gyarnpf"]
 
-[ext_resource type="Theme" uid="uid://ioydbkdykfmq" path="res://assets/theme/base_theme.tres" id="1_yopkh"]
+[ext_resource type="Theme" uid="uid://b5x4p43ewn0fj" path="res://assets/theme/base_theme.tres" id="1_yopkh"]
 [ext_resource type="Script" uid="uid://cobdikkm0xfs1" path="res://scripts/ui/difficulty_select.gd" id="2_nq8i4"]
+[ext_resource type="FontFile" uid="uid://dykcomcv4lr1" path="res://assets/fonts/FredokaOne-Regular.ttf" id="3_nq8i4"]
+[ext_resource type="Texture2D" uid="uid://c8mgjgfo30sad" path="res://assets/icons/ui/seta_voltar.svg" id="4_uvpan"]
 
 [node name="DifficultySelect" type="Control" unique_id=1376686066]
 layout_mode = 3
@@ -24,42 +26,151 @@ color = Color(0.9882353, 0.9098039, 0.69411767, 1)
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme_override_constants/separation = 28
 alignment = 1
 
 [node name="Title" type="Label" parent="Layout" unique_id=1088726840]
+custom_minimum_size = Vector2(0, 90)
 layout_mode = 2
-text = "Escolha a dificuldade"
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/outline_size = 48
+theme_override_constants/shadow_outline_size = 48
+theme_override_fonts/font = ExtResource("3_nq8i4")
+theme_override_font_sizes/font_size = 52
+text = "Dificuldade"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="FacilButton" type="Button" parent="Layout" unique_id=994127791]
-custom_minimum_size = Vector2(240, 60)
+[node name="FacilWrapper" type="Control" parent="Layout" unique_id=988067217]
+custom_minimum_size = Vector2(320, 140)
 layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Halo" type="Panel" parent="Layout/FacilWrapper" unique_id=640747008]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_type_variation = &"HaloRectPanel"
+
+[node name="FacilButton" type="Button" parent="Layout/FacilWrapper" unique_id=994127791]
+custom_minimum_size = Vector2(290, 110)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -145.0
+offset_top = -55.0
+offset_right = 145.0
+offset_bottom = 55.0
 size_flags_horizontal = 4
 theme_type_variation = &"YellowButton"
+theme_override_fonts/font = ExtResource("3_nq8i4")
+theme_override_font_sizes/font_size = 60
 text = "Fácil"
 
-[node name="MedioButton" type="Button" parent="Layout" unique_id=898762389]
-custom_minimum_size = Vector2(240, 60)
+[node name="MedioWrapper" type="Control" parent="Layout" unique_id=1953425764]
+custom_minimum_size = Vector2(320, 140)
 layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Halo" type="Panel" parent="Layout/MedioWrapper" unique_id=182673124]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_type_variation = &"HaloRectPanel"
+
+[node name="MedioButton" type="Button" parent="Layout/MedioWrapper" unique_id=898762389]
+custom_minimum_size = Vector2(290, 110)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -145.0
+offset_top = -55.0
+offset_right = 145.0
+offset_bottom = 55.0
 size_flags_horizontal = 4
 theme_type_variation = &"LimeButton"
+theme_override_fonts/font = ExtResource("3_nq8i4")
+theme_override_font_sizes/font_size = 60
 text = "Médio"
 
-[node name="DificilButton" type="Button" parent="Layout" unique_id=1745980089]
-custom_minimum_size = Vector2(240, 60)
+[node name="DificilWrapper" type="Control" parent="Layout" unique_id=1591152817]
+custom_minimum_size = Vector2(320, 140)
 layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Halo" type="Panel" parent="Layout/DificilWrapper" unique_id=806464941]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_type_variation = &"HaloRectPanel"
+
+[node name="DificilButton" type="Button" parent="Layout/DificilWrapper" unique_id=1745980089]
+custom_minimum_size = Vector2(290, 110)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -145.0
+offset_top = -55.0
+offset_right = 145.0
+offset_bottom = 55.0
 size_flags_horizontal = 4
 theme_type_variation = &"BlueButton"
+theme_override_fonts/font = ExtResource("3_nq8i4")
+theme_override_font_sizes/font_size = 60
 text = "Difícil"
 
-[node name="VoltarButton" type="Button" parent="Layout" unique_id=199977567]
-custom_minimum_size = Vector2(240, 60)
+[node name="VoltarSpacer" type="Control" parent="Layout" unique_id=160813033]
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
+
+[node name="VoltarRow" type="HBoxContainer" parent="Layout" unique_id=270844892]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LeftSpacer" type="Control" parent="Layout/VoltarRow" unique_id=638311581]
+custom_minimum_size = Vector2(46, 0)
+layout_mode = 2
+
+[node name="VoltarWrapper" type="Control" parent="Layout/VoltarRow" unique_id=1623793272]
+custom_minimum_size = Vector2(220, 96)
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="Halo" type="Panel" parent="Layout/VoltarRow/VoltarWrapper" unique_id=1474431324]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_type_variation = &"HaloRectPanel"
+
+[node name="VoltarButton" type="Button" parent="Layout/VoltarRow/VoltarWrapper" unique_id=199977567]
+custom_minimum_size = Vector2(204, 80)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -102.0
+offset_top = -40.0
+offset_right = 102.0
+offset_bottom = 40.0
 size_flags_horizontal = 4
 theme_type_variation = &"RedButton"
-text = "Voltar"
+theme_override_constants/h_separation = 10
+theme_override_fonts/font = ExtResource("3_nq8i4")
+theme_override_font_sizes/font_size = 30
+text = "VOLTAR"
+icon = ExtResource("4_uvpan")
 
-[connection signal="pressed" from="Layout/FacilButton" to="." method="_on_facil_pressed"]
-[connection signal="pressed" from="Layout/MedioButton" to="." method="_on_medio_pressed"]
-[connection signal="pressed" from="Layout/DificilButton" to="." method="_on_dificil_pressed"]
-[connection signal="pressed" from="Layout/VoltarButton" to="." method="_on_voltar_pressed"]
+[connection signal="pressed" from="Layout/FacilWrapper/FacilButton" to="." method="_on_facil_pressed"]
+[connection signal="pressed" from="Layout/MedioWrapper/MedioButton" to="." method="_on_medio_pressed"]
+[connection signal="pressed" from="Layout/DificilWrapper/DificilButton" to="." method="_on_dificil_pressed"]
+[connection signal="pressed" from="Layout/VoltarRow/VoltarWrapper/VoltarButton" to="." method="_on_voltar_pressed"]

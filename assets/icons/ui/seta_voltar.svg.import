@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c7uxltwv1nlyk"
-path="res://.godot/imported/dica_estrela.svg-b1f75794e540f7ea1b336eb8770e9da9.ctex"
+uid="uid://c8mgjgfo30sad"
+path="res://.godot/imported/seta_voltar.svg-14c28b53c2165d47b30e9f895646a4ba.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/ui/dica_estrela.svg"
-dest_files=["res://.godot/imported/dica_estrela.svg-b1f75794e540f7ea1b336eb8770e9da9.ctex"]
+source_file="res://assets/icons/ui/seta_voltar.svg"
+dest_files=["res://.godot/imported/seta_voltar.svg-14c28b53c2165d47b30e9f895646a4ba.ctex"]
 
 [params]
 

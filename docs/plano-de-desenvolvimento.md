@@ -423,6 +423,68 @@ celular, que é a plataforma-alvo real (RNF10: exclusivo Android, mín. SDK 26).
   um device mais estreito; instalar Android SDK/templates localmente pra finalmente gerar e
   testar um `.apk` de verdade (ver Fase 7).
 
+### Bug adicional de mobile: tela de Histórico estourava a largura
+Ao revisar as telas restantes em retrato, a tela de Histórico mostrou texto cortado à
+direita e o botão Voltar parcialmente fora da tela. Causa: os `Label` de cada linha do
+histórico (`scripts/ui/history.gd`) não tinham `autowrap` nem largura definida — o texto
+"Difícil — Pontos: 999 — Tempo: 59:59" sem quebra tem ~550px de largura natural, forçando o
+`VBoxContainer` pai a ficar mais largo que os 412px da tela (o mesmo mecanismo do bug do
+Card Grid: minimum_size vence sobre âncoras). Corrigido: cada linha agora recebe
+`autowrap_mode = AUTOWRAP_WORD_SMART` e `custom_minimum_size.x` calculado a partir da
+largura real do viewport (`get_viewport_rect().size.x - 40`), quebrando em 2 linhas quando
+necessário em vez de estourar. `EmptyLabel`/`ScrollContainer` também tinham
+`custom_minimum_size` fixo em 600px, corrigido pra 0 + `size_flags_horizontal = 3` (fill) +
+`horizontal_scroll_mode = 0` (nunca scroll horizontal, só vertical). Confirmado com
+`editor_screenshot` real: histórico cabe, com scroll vertical funcionando quando há mais
+entradas do que a altura da lista.
+
+### Troca de ícone-só-o-ícone para botão completo exportado do Figma
+Usuário perguntou se não seria mais simples exportar o botão inteiro (fundo + sombra/halo +
+ícone) do Figma em vez de reconstruir o fundo/sombra manualmente no tema do Godot — e sim,
+era. Processo:
+- Primeira tentativa em SVG falhou: o Godot **ignora inteiramente** qualquer grupo SVG
+  envolto em `<g filter="url(#...)">` (o filtro de drop-shadow blur do Figma) — não é só o
+  blur que some, o grupo inteiro (incluindo o fundo branco/colorido sólido) desaparece na
+  importação. Confirmado visualmente: um `TextureRect` de teste isolado mostrou só o
+  triângulo do ícone, sem nenhum fundo. Sem solução viável em SVG sem editar o arquivo à
+  mão removendo os filtros (perderia a sombra suave).
+- Segunda tentativa em PNG (rasterizado, mesma resolução 1x do frame Figma) funcionou
+  perfeitamente — PNG não depende de filtros SVG, a sombra já vem "cozida" nos pixels.
+  5 botões trocados: `assets/icons/ui/buttons/{jogar,historico,configuracoes,pausa,
+  dica}_button.png`. Os ícones antigos (`jogar.svg`, `historico.svg`, `configuracoes.svg`,
+  `pausa.svg`, `dica_estrela.svg`) foram removidos por não terem mais nenhuma referência.
+- Estrutura simplificada: os nós `Halo` (Panel com sombra via tema) viraram desnecessários e
+  foram deletados — a sombra já está na imagem. Cada `Button` agora ocupa 100% do wrapper
+  (antes era menor, centralizado, com o Halo maior atrás) e o `TextureRect` filho cobre o
+  botão inteiro sem inset, com `expand_mode = EXPAND_IGNORE_SIZE` (mesma lição do bug do
+  ícone do Dica na Fase mobile — sem isso o `TextureRect` tentaria usar o tamanho nativo do
+  PNG como mínimo).
+- Novo tipo de tema `ImageButton` (stylebox transparente em todos os estados:
+  normal/hover/pressed/disabled/focus) substitui os antigos `GreenCircleButton`/
+  `BlueButton`/`YellowButton`/`YellowCircleButton`/`TransparentButton` nesses 5 botões — a
+  cor/forma agora vem inteiramente da imagem, o Button por trás só cuida de clique/foco.
+  **Gotcha do `theme_manage` de novo**: dessa vez especificamente o tipo `ImageButton` NÃO
+  teve o `base_type` registrado automaticamente (diferente das sessões anteriores, onde o
+  plugin já cobria isso sozinho) — sintoma idêntico ao bug antigo (botão caía no estilo
+  cinza padrão do Godot). Corrigido adicionando a linha `ImageButton/base_type = &"Button"`
+  direto no `.tres` (mesmo formato que as outras 12 entradas já tinham, então seguro copiar
+  o padrão à mão neste caso specific).
+- **Acessibilidade**: como o stylebox do `ImageButton` é transparente em todo estado, o
+  feedback visual nativo do Godot (mudar de cor ao pressionar, escurecer ao desabilitar)
+  deixou de existir. Compensado em código (`main_menu.gd` e `board.gd`): uma leve animação
+  de escala (0.92x, 0.08s) em `button_down`/`button_up` confirma visualmente que o toque
+  registrou, e um helper `_set_image_button_enabled()` aplica `modulate` a 50% de opacidade
+  quando o botão fica desabilitado (usado no botão de Dica sem saldo/hints e no botão de
+  Pausa após vencer a partida) — sem isso os botões pareceriam sempre clicáveis mesmo
+  quando não estão, o que seria uma regressão de acessibilidade real, não só estética.
+  Textos de botão (Fácil/Médio/Difícil, Continuar/Reiniciar/Sair, Voltar, Entendi!)
+  continuam de fora dessa troca — teto de imagem não escala com a opção "Tamanho da letra",
+  então só os 5 botões 100% ícone (sem texto embutido no gráfico) foram convertidos.
+- Confirmado com `editor_screenshot` real (menu e tabuleiro), captura do estado pressionado
+  em pleno toque (botão visivelmente menor), captura do estado desabilitado (dica esmaecida
+  com pontuação 0, corretamente abaixo do custo de 15), overlay de pausa abrindo normal, e
+  51/51 testes automatizados passando.
+
 ### Pendências que ficam
 - Painel de lista do Histórico (protótipo pede fundo `#FECE33`/borda `#DFB838`; hoje é só
   texto no fundo creme).
@@ -436,6 +498,458 @@ celular, que é a plataforma-alvo real (RNF10: exclusivo Android, mín. SDK 26).
   `theme_override_fonts/font` em `TitleLabel`/`SubtitleLabel` (Fredoka) e nas legendas
   `HISTÓRICO`/`CONFIGURAÇÕES`, agora em caixa alta (Gabarito Black). Confirmado com
   `editor_screenshot` real; 51/51 testes continuam passando.
-- Bloco do título ainda não tem o "card" branco de fundo com sombra que o protótipo usa
-  (só o contorno branco por letra) — o espaçamento entre as duas linhas também está mais
-  solto que no protótipo. Ambos são polimento menor, não pedidos explicitamente ainda.
+- ~~Bloco do título sem o "card" branco de fundo~~ — resolvido (ver seção abaixo).
+
+### Título do menu e tela de Dificuldade redesenhados (fiéis ao protótipo)
+Usuário apontou que o "fundo branco" do título não era um cartão retangular atrás do texto,
+e sim um contorno (`outline`) de fonte muito mais grosso — grosso o bastante pra que o
+contorno de letras vizinhas se funda visualmente num blob só, dando a aparência de
+"adesivo". Confirmado analisando o SVG do protótipo (`Tela Inicial.svg`): o texto foi
+exportado como path (sem `<text>`), usando a técnica de máscara "outside stroke" do Figma —
+tecnicamente um contorno de fonte espesso, não uma forma separada atrás do texto.
+
+- `TitleLabel`/`SubtitleLabel` movidos pra um `TitleGroup` (`VBoxContainer` com
+  `separation` negativo, -16) só pra eles, separado do espaçamento do `Layout` principal
+  (que continua controlando o espaço até o botão Jogar). Fonte subiu de 44/48px pra 68/64px,
+  `autowrap_mode` ligado no título (agora quebra "Jogo da" / "Memória" em duas linhas, como
+  no protótipo), `line_spacing` negativo (-10) pra aproximar as linhas, e `outline_size`
+  subiu de 8px pra **68px** (dobrado 2x a pedido do usuário: 8→20→34→68) — só nesse ponto o
+  contorno das 3 linhas ("Jogo da" / "Memória" / "Cuca Ativa") se funde num bloco branco
+  único e orgânico igual ao protótipo. Legendas `HISTÓRICO`/`CONFIGURAÇÕES` ganharam o mesmo
+  tratamento (outline branco 16px, texto preto — antes eram navy sem contorno).
+- **Bug de UX encontrado e corrigido**: o feedback de toque (animação de escala 0.92x) dos
+  botões-imagem (Jogar, Histórico, Pausa, Dica) encolhia na diagonal superior-esquerda em
+  vez de encolher pro centro. Causa: `pivot_offset` só era recalculado dentro do callback do
+  sinal `resized` — mas esse sinal não dispara de novo depois que o layout inicial do
+  Control já resolveu o tamanho final (que acontece antes do `_ready()` do script rodar),
+  então o callback nunca executava e `pivot_offset` ficava no padrão `(0,0)` (canto
+  superior-esquerdo). Corrigido chamando `_update_pivot(btn)` diretamente dentro do
+  `_ready()` de `main_menu.gd`/`board.gd`, além de manter a conexão ao sinal `resized` como
+  proteção extra pra mudanças futuras de tamanho.
+- **Tela de Dificuldade** reconstruída pra bater com `Tela Dificuldade.svg`: título trocado
+  de "Escolha a dificuldade" pra "Dificuldade" (Fredoka One 52px, mesmo tratamento de
+  contorno branco do menu principal). Os 3 botões (Fácil/Médio/Difícil) e o Voltar ganharam
+  wrapper + `Halo` (`HaloRectPanel`, mesmo componente já usado no menu principal) atrás,
+  dobrando de tamanho (240x60 → 290x110 pros 3 de dificuldade, 204x80 pro Voltar) com fonte
+  bem maior (36px/28px) e cantos mais arredondados. Cores extraídas com precisão de pixel
+  do SVG do protótipo — na prática já batiam quase exatamente com o tema existente
+  (`YellowButton`/`LimeButton`/`BlueButton`/`RedButton`), só precisou: corner_radius 12→20
+  em todos os 4, e a cor da borda do `YellowButton` corrigida de `#DFB838` pra `#AD8E2A`
+  (a borda daquele tom mais escuro é a que o Fácil realmente usa no protótipo; `#DFB838` era
+  usado em outro contexto, o botão circular de Configurações). `VoltarButton` ganhou uma
+  seta "←" antes do texto (`"← VOLTAR"`, caixa alta), igual ao protótipo.
+- **Gotcha do `theme_manage` de novo**: ao editar `YellowButton`/`LimeButton`/`BlueButton`/
+  `RedButton` nesta sessão, o `base_type` do `ImageButton` (não relacionado, criado numa
+  sessão anterior) sumiu de novo — mesmo padrão já registrado em
+  [[theme-type-variation-gotcha]]. Confirmado que os outros 12 tipos mantiveram o registro
+  intacto dessa vez; só o `ImageButton` foi afetado. Corrigido de novo hand-editando a linha
+  no `.tres`. Reforça a recomendação de sempre conferir `base_type` de TODOS os tipos depois
+  de qualquer sessão de `theme_manage`, não só do tipo que acabou de ser criado/editado.
+- Nota: `LimeButton`/`YellowButton`/`RedButton` também são usados no menu de pausa
+  (Continuar/Reiniciar/Sair) — o corner_radius maior (20) se propaga pra lá também. Ainda
+  não comparado contra `Tela Pausa.svg` especificamente; deve ficar consistente, mas vale
+  conferir quando essa tela receber sua própria passada de fidelidade visual.
+- Confirmado com `editor_screenshot` real, clique real em Fácil navegando pro tabuleiro, e
+  51/51 testes automatizados passando.
+- Ajustes finos pedidos em seguida, ambos aplicados a "Jogo da Memória"/"Cuca Ativa" e
+  "Dificuldade": tamanho do texto dos 3 botões de dificuldade aumentado 1.5x (40→60px) e
+  contorno branco do título dobrado (24→48px).
+- Botão Voltar recebeu ícone de seta de verdade (`assets/icons/ui/seta_voltar.svg`, exportado
+  pelo usuário e movido da raiz do projeto) no lugar do caractere Unicode "←" usado antes —
+  mais nítido e sem depender da fonte ter esse glifo. Alinhamento também corrigido: Voltar
+  estava centralizado (`size_flags_horizontal=4`) mas o protótipo alinha à esquerda, na mesma
+  margem dos botões de dificuldade acima — resolvido envolvendo `VoltarWrapper` num
+  `HBoxContainer` com um `Control` espaçador fixo (46px, igual à margem lateral dos outros
+  wrappers) antes dele, em vez de tentar usar apenas size_flags (que não davam controle fino
+  sobre uma margem específica, só "centro" ou "início").
+- **Sombra do título não aparecia**: a propriedade `font_shadow_color`/`shadow_offset_x/y`
+  do `Label` sombreia só o preenchimento colorido da letra, não o contorno grosso — como o
+  contorno (48-68px) é muito maior que a letra em si, a sombra da letra ficava inteiramente
+  escondida atrás do próprio contorno, invisível. A propriedade que faltava:
+  `theme_override_constants/shadow_outline_size`, que faz a sombra copiar o contorno inteiro
+  (não só o preenchimento) — só com ela a sombra do "blob" branco inteiro apareceu. Ajustado
+  em 2 rodadas: primeiro com cor muito escura/offset grande (opacidade 80%, offset 8/10) a
+  pedido do usuário — ficou forte demais — depois suavizado pra opacidade 30% e offset 4/5
+  (igual ao valor original usado nos halos dos botões), que bateu com o protótipo. Aplicado
+  em `TitleLabel`/`SubtitleLabel` (menu) e `Title` (Dificuldade).
+
+### Tela do Tabuleiro: pontuação restilizada e rodapé de ações reposicionado
+- `ScoreLabel` (`"Pontuação: %d"` numa linha só, fonte padrão) substituído por duas labels
+  empilhadas (`ScoreGroup` — mesmo padrão `TitleGroup` do menu/Dificuldade): "Pontuação"
+  (sem dois-pontos) e o número embaixo, ambos Fredoka One 52px com o mesmo contorno/sombra
+  branco grosso dos outros títulos. `board.gd` atualizado: `score_label` virou
+  `score_title_label` + `score_value_label`; `_on_game_won` agora troca o título pra
+  "Parabéns!" e mantém o número (antes era uma frase única "Parabéns! Pontuação final: X"
+  que não cabia mais nesse formato de 2 linhas); `_on_reiniciar_pressed` restaura o título
+  "Pontuação" caso o reinício aconteça depois de vencer.
+- `Header` (HBoxContainer com Score+Dica+Pausa lado a lado no topo) removido. Dica e Pausa
+  agora moram num novo `Footer` (`Control`, altura 90px) logo depois do `CardGrid`: Dica
+  ancorada ao centro horizontal, Pausa ancorada ao canto inferior direito (20px de margem),
+  ambos na mesma altura — batendo com o protótipo (`Tela Tabuleiro Fácil.svg` etc.), que
+  também não coloca esses botões ao lado da pontuação, e sim abaixo do tabuleiro.
+- Confirmado com `editor_screenshot` real jogando através do fluxo normal (menu → Fácil →
+  tabuleiro), clique real no Pausa abrindo o overlay corretamente, e 51/51 testes
+  automatizados passando.
+- Ajustes finos pedidos em seguida: separação do `ScoreGroup` (-4→+6) pra desgrudar
+  "Pontuação" do número, espaçador de 24px antes do `CardGrid` (título estava colado no
+  tabuleiro), estrela da Dica ampliada em 2 rodadas (100→140→180→270px de largura, mantendo
+  a proporção real do asset 224:131 desde a 2ª rodada) e Pausa reposicionado pro canto
+  inferior direito de fato (ancorado no rodapé do `Footer`, não mais alinhado à mesma altura
+  da Dica). Texto "DICA" adicionado dentro da estrela: Fredoka One 29px (55% do tamanho da
+  "Pontuação", 52px), branco com contorno preto fino (não o contorno branco grosso dos
+  títulos) e sombra sutil — só `outline_size`/`font_shadow_color`, sem
+  `shadow_outline_size`, pra não criar o efeito "adesivo" nesse texto menor.
+
+### Tela de Configurações: mesmo padrão de título/texto e botão Voltar
+Usuário apontou que a tela de Configurações ficou bem diferente do protótipo e pediu pra
+aplicar "o mesmo padrão anterior" — mesmo tratamento de texto e mesmo componente de Voltar
+já usados nas outras telas, sem redesenhar a mecânica de seleção (manteve os botões
+Mudo/Baixo/Alto/Normal/Grande como estão, não a lista com checkmark do protótipo, que exigiria
+mudança funcional maior — só a parte visualmente descrita foi pedida).
+- "Configurações" (título): Fredoka One 52px, contorno branco 48px + sombra + shadow_outline
+  — idêntico ao "Dificuldade"/"Pontuação".
+- "Volume do jogo" e "Tamanho da letra" (subtítulos de seção): mesmo tratamento, só menor
+  (32px, contorno 24px) — mantém a hierarquia visual entre título da página e títulos de
+  seção.
+- Texto dos botões (Mudo/Baixo/Alto/Normal/Grande): trocado pra Fredoka One 26px, igual ao
+  padrão já usado nos botões de dificuldade (preto, sem contorno — o contorno grosso é só
+  para texto sobre o fundo creme, não para texto dentro de um botão colorido).
+- `VoltarButton`: reconstruído com o mesmo componente usado no resto do jogo —
+  `VoltarWrapper` (halo `HaloRectPanel` atrás) + ícone de seta
+  (`assets/icons/ui/seta_voltar.svg`) + texto "VOLTAR" em caixa alta, RedButton.
+- **Falso alarme**: primeira captura mostrou o Voltar cinza em vez de vermelho — não é bug,
+  é o estado de :hover (o cursor simulado ainda estava sobre o botão no momento do
+  `editor_screenshot`, já que `RedButton` só define stylebox `normal`, então hover/pressed
+  caem no cinza padrão do Godot — mesma causa-raiz do gotcha já documentado do
+  `TransparentButton`, mas aqui é comportamento aceitável, não pedido para corrigir). Segunda
+  captura movendo o mouse pra longe antes do screenshot confirmou vermelho normal.
+- Confirmado com `editor_screenshot` real (cursor afastado do botão) e 51/51 testes
+  automatizados passando.
+
+### Configurações: mecânica de seleção trocada pra lista com checkmark (igual ao protótipo)
+Depois da passada de estilo acima, usuário pediu pra ir além e trocar a MECÂNICA em si:
+sair dos botões-caixa coloridos (Mudo/Baixo/Alto, Normal/Grande) e adotar o padrão real do
+protótipo — uma caixa de ícone grande (com halo) à esquerda de cada seção, e a lista de
+opções como texto simples (contorno branco fino + sombra, sem fundo colorido) à direita,
+com um checkmark verde ao lado da opção selecionada.
+- Extraído do SVG do protótipo (`Tela Configurações.svg`, via `filter`s + cores): caixa do
+  ícone é branca com borda `#DFB838` 3px, corner radius ~20, com halo atrás (mesmo
+  `HaloRectPanel` já usado em botões); texto das opções é navy `#0B2973` com contorno
+  branco (bem mais fino que o dos títulos — 14px, não 24-48px) e sombra sutil; checkmark é
+  verde `#4ABA34` (o `checkmark.svg` já existente já usa esse tom).
+- **3ª opção nova**: o protótipo tem "Muito Grande" além de "Padrão"/"Grande" — não existia
+  no código. Como `SettingsManager.set_font_scale()` já aceita qualquer float (não é
+  hardcoded a 2 níveis), só precisou adicionar a chave nova no dicionário `FONT_SCALES` de
+  `settings.gd` (`"muito_grande": 1.5`) e criar o botão correspondente — nenhuma mudança no
+  autoload.
+- Reestruturação por seção: `TitleRow` (ícone pequeno 36px inline + subtítulo) virou só o
+  subtítulo sozinho; a antiga `VolumeButtons`/`FontSizeButtons` (`HBoxContainer` de botões
+  coloridos) virou `OptionsRow` (`HBoxContainer`) contendo `IconWrapper` (halo + caixa do
+  ícone, 110x122, ícone antigo de 36px reaproveitado dentro) e `OptionsList`
+  (`VBoxContainer` com um botão por opção).
+- Cada opção: `Button` com `theme_type_variation="ImageButton"` (mesmo tipo transparente já
+  usado nos botões-imagem — aqui escolhido de propósito porque TODOS os estados
+  (normal/hover/pressed/disabled) já são transparentes, evitando o "flash cinza" que
+  `RedButton`/etc. têm ao passar o mouse) com `text=" "` (placeholder, meesmo workaround do
+  espaço em branco já documentado pro bug de string vazia) e um `Row` (`HBoxContainer`,
+  `mouse_filter=2` IGNORE) filho contendo o `OptionLabel` (texto de verdade, estilizado) e
+  o `Check` (reaproveitado do botão antigo, só recolocado dentro do `Row` com tamanho fixo
+  28x28 em vez de posicionamento absoluto por anchors).
+- **Bug corrigido on-the-fly**: primeiro teste travou o jogo com "Node not found: Check" —
+  o script (`settings.gd`) ainda buscava `get_node("Check")` direto no botão, mas o `Check`
+  agora mora um nível mais fundo, em `Row/Check`. Um `replace_all` trocando pra
+  `get_node("Row/Check")` resolveu.
+- **Ajuste de layout pedido pelo usuário**: primeira versão deixava a caixa de ícone
+  "flutuando" no meio da tela e cortava "Muito Grande" na borda direita. Causa: `OptionsRow`
+  e `OptionsList` mantinham `size_flags_horizontal` padrão (não-fill) herdado dos nós
+  antigos, então só ocupavam a largura mínima do conteúdo em vez de esticar até a borda —
+  isso empurrava tudo (ícone incluso) pro centro da tela em vez de grudar na esquerda.
+  Usuário pediu explicitamente pra NÃO reduzir a fonte da opção mais longa; a correção
+  certa foi `size_flags_horizontal = 3` (fill) em `VolumeSection`/`FontSizeSection`/
+  `OptionsRow`/`OptionsList`, deixando o ícone fixo grudado na esquerda (`custom_minimum_size`
+  fixo, sem fill) e a lista esticando até a borda direita real da tela — "Muito Grande"
+  passou a caber exatamente (rect termina em x=412, a largura exata da tela) sem tocar em
+  nenhum tamanho de fonte.
+- Confirmado com `editor_screenshot` real, clique real trocando Volume (Desligado) e Tamanho
+  da Letra (Muito Grande — inclusive viu a UI inteira escalar em tempo real, confirmando
+  RNF02 funcionando ponta a ponta com o nível novo), Voltar navegando de volta pro menu, e
+  51/51 testes automatizados passando.
+
+### Configurações: ajustes finos da caixa de ícone e margens laterais
+Duas rodadas de ajuste pedidas depois da troca de mecânica acima, ambas nas caixas de ícone
+(`IconWrapper` de Volume e Tamanho da letra):
+- **1ª rodada**: usuário mandou 2 prints recortados do ícone de som mostrando que o ícone
+  ocupava a caixa branca quase até a borda (pouco respiro) comparado ao protótipo, mais
+  espaçoso. Corrigido aumentando o inset do `Icon` (`TextureRect`) dentro do `IconBox` de
+  18px para 28px em cada lado, em ambas as seções.
+- **2ª rodada**: usuário pediu 3 coisas juntas — dobrar o tamanho do ícone dentro da caixa,
+  trocar a caixa "branca com borda amarela fina" por uma "borda amarela grossa com o branco
+  só por dentro" (a caixa branca deve ficar visualmente dentro da amarela, não a amarela
+  como um filete fino em volta do branco), e resolver o ícone/opções colados na lateral da
+  tela. Todas resolvidas:
+  - `IconBox` (`StyleBoxFlat` de cada seção): `border_width` aumentado de 3px para 10px —
+    como o preenchimento (`bg_color`) continua branco e a borda é a cor dourada
+    (`#DFB838`), uma borda desse porte já cria o efeito "moldura amarela grossa com miolo
+    branco" pedido, sem precisar de uma 3ª camada de painel.
+    Fica documentado que, embora a esteira mantida (`Halo` branco atrás, mesmo componente
+    `HaloRectPanel` de sombra usado em todo o app) ainda deixa uma faixa branca fininha
+    visível nos cantos do `IconWrapper` por trás da caixa — é a mesma sombra usada em todos
+    os outros halos do jogo, não um problema novo.
+  - Inset do `Icon` reduzido de 28px para 10px em cada lado (compensando o espaço que a
+    borda mais grossa consumiu) — o ícone agora ocupa quase toda a área branca interna da
+    caixa, visivelmente maior que antes.
+  - Margem lateral: `Layout` (o `VBoxContainer` raiz da tela) não tinha nenhum respiro
+    lateral (`offset_left`/`offset_right` em 0, esticado ponta a ponta), então tanto a
+    caixa do ícone quanto a lista de opções ficavam colados nas bordas de 412px da tela.
+    Corrigido com `offset_left=32`/`offset_right=-32` no próprio `Layout` — mais simples
+    que adicionar um `MarginContainer` novo, já que todo o conteúdo já é filho direto dele.
+- Confirmado com `editor_screenshot` real navegando Menu → Configurações via clique
+  simulado real (não só leitura do `.tscn`), e 51/51 testes automatizados continuam
+  passando.
+
+- **3ª rodada**: usuário apontou 2 problemas remanescentes na mesma caixa de ícone,
+  batendo exatamente com o que eu tinha documentado como "esperado" na rodada anterior —
+  a sombra branca do `Halo` (mesmo componente de sombra usado no resto do jogo) vazando
+  visivelmente para fora da borda amarela, e a borda encostando direto no ícone (sem
+  respiro). Corrigido nas duas seções (Volume e Tamanho da letra), mantendo o centro/
+  posição de tudo igual:
+  - `IconBox` (a caixa branca com borda) aumentada de 94x106 para 106x118 — a margem entre
+    ela e o `Halo` atrás caiu de 8px para 2px de cada lado, escondendo quase toda a sombra
+    branca que antes vazava para fora da borda amarela.
+  - `border_width` do `IconBox` subiu de 10px para 12px (amarelo ligeiramente mais grosso,
+    como pedido).
+  - Inset do `Icon` aumentado de 10px para 18px em cada lado — como isso é maior que os
+    12px da borda, sobra ~6px de branco visível entre a borda e o ícone, resolvendo o
+    "borda encostando no ícone".
+- Confirmado com `editor_screenshot` real (Menu → Configurações via clique real) e 51/51
+  testes automatizados passando.
+
+- **Botão Voltar recentralizado → alinhado à esquerda**: mesmo bug/correção já aplicada na
+  tela de Histórico — `VoltarWrapper` tinha `size_flags_horizontal = 4` (centralizado),
+  diferente do padrão usado nas telas de Dificuldade/Histórico (alinhado à esquerda, rente
+  à borda esquerda do conteúdo acima). Corrigido pra `size_flags_horizontal = 0`. Confirmado
+  com `editor_screenshot` real e 51/51 testes automatizados passando.
+
+- **4ª rodada**: usuário pediu pra mudar todos os textos (exceto o título) e os 2 ícones
+  pra preto, além de aumentar o espaçamento entre as seções (Volume/Tamanho da letra
+  ficavam muito espremidas no meio da tela). `VolumeLabel`/`FontSizeLabel` e as 6
+  `OptionLabel` (Desligado/Médio/Alto/Padrão/Grande/Muito Grande) ganharam
+  `font_color = preto` (título continua navy, de propósito). Os ícones (`som.svg`/
+  `texto.svg`) são navy no arquivo — em vez de recriar os SVGs, apliquei
+  `modulate = preto` nos 2 `TextureRect`: como modulate multiplica a cor da textura,
+  qualquer cor não-transparente vira preto (RGB × 0 = 0), preservando o alfa/silhueta do
+  ícone sem precisar editar o asset. `Layout` (o `VBoxContainer` raiz) ganhou
+  `theme_override_constants/separation = 32` (não tinha valor customizado antes, caía no
+  padrão baixo do tema, por isso "condensadas no meio da tela" com `alignment=1` CENTER).
+- Confirmado com 51/51 testes automatizados passando (verificação visual desta rodada
+  específica ficou pendente — a mensagem seguinte do usuário mudou de assunto pra tela de
+  Histórico antes de eu capturar o `editor_screenshot`).
+
+- **5ª rodada (última pedida)**: reduzir a espessura da borda amarela pela metade e garantir
+  que o fundo branco fique inteiramente dentro do quadro amarelo. Duas mudanças nas 2
+  seções (Volume e Tamanho da letra):
+  - `border_width` do `IconBox` reduzido de 12px para 6px (metade, como pedido).
+  - `Halo` (o painel branco de sombra atrás do `IconBox`, antes do tamanho do `IconWrapper`
+    inteiro — só 2px maior que o `IconBox` de cada lado) redimensionado pra ocupar
+    exatamente o mesmo retângulo do `IconBox` (mesmos offsets ±53/±59 a partir do centro,
+    em vez de `anchor_right/bottom=1` preenchendo o wrapper inteiro) — eliminando de vez a
+    faixa branca que ainda vazava um pouco por fora da borda amarela (bem mais perceptível
+    agora que a borda ficou mais fina). A sombra do `HaloRectPanel` continua funcionando
+    normalmente, já que `shadow_size` desenha para fora dos limites do painel independente
+    do tamanho dele.
+- Confirmado com `editor_screenshot` real (Menu → Configurações via clique real) e 51/51
+  testes automatizados passando.
+
+### Tela de Histórico: do zero, tabela de 2 colunas fiel ao protótipo
+Tela estava sem nenhum trabalho de fidelidade visual desde a Fase 4 (texto solto "Difícil —
+Pontos: 999 — Tempo: 59:59" em uma linha, fonte padrão do Godot, botão Voltar genérico).
+Usuário mandou a imagem do protótipo (cartão branco com borda azul, cabeçalho "PONTOS"/
+"TEMPO" em negrito, linhas divisórias pretas finas entre cada registro) e pediu a mesma
+fonte Fredoka One Regular em todos os textos e números.
+
+- Reescrita completa de `scenes/game/history.tscn` (editado direto no arquivo, não via MCP
+  node tools, por ser mais prático numa reestruturação grande — depois recarregado no
+  editor ao vivo via `scene_open(force_reload=true)`):
+  - Título "Histórico": mesmo tratamento sticker (Fredoka One 52px, contorno branco 48px +
+    sombra + shadow_outline) usado em "Dificuldade"/"Configurações"/"Pontuação" — antes
+    usava a fonte/cor padrão do Godot, sem nenhum estilo.
+  - Card novo (`CardWrapper > CardPanel > CardMargin > CardVBox`): `Panel` com
+    `StyleBoxFlat` local — fundo branco, borda azul 5px (`#4FAAE2`), corner_radius 24,
+    sombra sutil (mesmo padrão de opacidade 30%/offset 3,5 usado nos halos) — cor extraída
+    visualmente do print do protótipo (não havia SVG exportado desta tela pra medir em
+    pixel exato). Dentro: `HeaderRow` com "PONTOS"/"TEMPO" (Fredoka One 30px, preto,
+    centralizados cada um ocupando metade da largura) + `HeaderDivider` (linha preta 3px)
+    + `ScrollContainer`/`List` (linhas dinâmicas) + `EmptyLabel` (mesma mensagem de estado
+    vazio de antes, agora preta/Fredoka, ocupando o espaço do card quando não há histórico).
+  - `VoltarButton` reconstruído com o mesmo padrão usado no resto do jogo (`VoltarWrapper` +
+    `Halo` + ícone de seta `seta_voltar.svg` + texto "VOLTAR" em caixa alta, `RedButton`) —
+    antes era um `Button` genérico sem halo/ícone/fonte customizada.
+- `scripts/ui/history.gd` reescrito: cada entrada do histórico virou uma linha de 2 colunas
+  (`_add_row`/`_make_cell`) em vez de uma única `Label` com string concatenada — pontos e
+  tempo cada um centralizado na sua metade, fonte Fredoka One 28px preta aplicada via
+  `add_theme_font_override`/`add_theme_color_override` (os `Label` são criados em runtime
+  por script, então não dá pra herdar de um nó de cena, precisou de override explícito por
+  linha). Uma `ColorRect` de 2px preta é adicionada como divisória depois de cada linha.
+  **Simplificação deliberada**: a coluna de dificuldade (que existia antes, "Difícil — ...")
+  foi removida da exibição pra bater exatamente com as 2 colunas do protótipo — o dado
+  continua salvo em `SaveManager.history` (`difficulty`), só não aparece mais nessa tabela.
+- Confirmado com `editor_screenshot` real (Menu → Histórico via clique real, mostrando
+  entradas de partidas já salvas de sessões anteriores) e 51/51 testes automatizados
+  passando.
+- **Ajuste fino**: usuário pediu a borda do card em amarelo (`#DFB838`, a mesma cor
+  dourada usada em todo o resto do app) em vez do azul usado na 1ª versão — eu tinha
+  escolhido azul só por aproximação visual do print do protótipo, sem SVG pra medir o hex
+  exato; corrigido pra manter consistência com o resto da paleta. Também corrigido o
+  `VoltarButton`, que estava centralizado e colado na margem inferior — igual ao padrão já
+  usado na tela de Dificuldade, `VoltarWrapper` mudou de `size_flags_horizontal = 4`
+  (centralizado) para `0` (alinhado à esquerda), ficando rente à borda esquerda do card
+  acima, do jeito que o Voltar da tela de Dificuldade fica alinhado com os botões de
+  dificuldade. Confirmado com `editor_screenshot` real e 51/51 testes automatizados
+  passando.
+- **Teste de estresse (muitas partidas)**: usuário pediu pra confirmar que o painel não
+  "fura" (o conteúdo não vaza pra fora do card) quando há muitas partidas no histórico.
+  Sem uma partida real de verdade pra gerar 30+ vitórias, semeei temporariamente
+  `SaveManager.history` com 30 entradas falsas direto no `_ready()` de `history.gd`
+  (comentário `TEMP STRESS TEST`), rodei o jogo, capturei `editor_screenshot` real com as
+  34 entradas totais (30 falsas + 4 reais já salvas) — confirmado: o `ScrollContainer`
+  contém a lista inteira, mostra a barra de rolagem, e nenhuma linha vaza pra fora dos
+  cantos arredondados do card, com o cabeçalho "PONTOS"/"TEMPO" permanecendo fixo acima da
+  área de rolagem. Removi o código de teste logo em seguida (não é uma mudança real, só
+  verificação) e confirmei 51/51 testes automatizados continuando a passar depois de
+  reverter.
+- **Margem vertical**: título e Voltar ficaram colados nas bordas superior/inferior da
+  tela — causa: `Layout` só tinha inset lateral (`offset_left=32`/`offset_right=-32`), sem
+  nenhum no topo/base, e o `CardWrapper` (único filho com `size_flags_vertical=3`,
+  expand+fill) consome todo o espaço vertical sobrando, empurrando literalmente o título
+  pro topo (y=0) e o Voltar pro fundo (borda inferior) da tela. Corrigido adicionando
+  `offset_top=32`/`offset_bottom=-32` no `Layout`, mesmo valor já usado nas laterais.
+  Confirmado com `editor_screenshot` real e 51/51 testes automatizados passando.
+
+### Telas de Pausa e Parabéns implementadas (protótipo fielmente seguido)
+Usuário mandou o print lado a lado das duas telas do protótipo ("Tela Pausa"/"Tela
+Parabéns") apontando que nenhuma das duas batia com o app: a Pausa era um diálogo modal
+genérico (card cinza padrão do Godot sobre o tabuleiro escurecido, sem estilo nenhum) e a
+tela de Parabéns nem existia de verdade — `_on_game_won()` só trocava o texto do título de
+pontuação no próprio tabuleiro, sem imagem, sem botões "Jogar novamente"/"Sair".
+
+- **Pausa** (`PauseOverlay` em `board.tscn`, reescrito): trocado o antigo `Dim`
+  (`ColorRect` preto 55% opacidade) + `Card` (`Panel` com estilo padrão cinza) por um
+  `Background` creme opaco (mesma cor de fundo do resto do app) cobrindo a tela inteira —
+  o protótipo mostra uma tela cheia, não um diálogo flutuante sobre o jogo escurecido.
+  Título "Pausa" ganhou o mesmo tratamento sticker (Fredoka One 52px, contorno branco 48px
+  + sombra) de "Dificuldade"/"Pontuação". Os 3 botões (Continuar/Reiniciar/Sair) ganharam
+  `Halo` atrás (`HaloRectPanel`, o mesmo componente de sombra usado em todo o app) e fonte
+  Fredoka One 32px — antes eram botões `Button` padrão sem halo nem fonte customizada.
+- **Parabéns** (`WinOverlay`, node novo em `board.tscn`, não existia): mesma estrutura de
+  tela cheia da Pausa (`Background` creme opaco cobrindo o tabuleiro). Contém: título
+  "Parabéns!" (sticker, 56px), "Pontuação: X" e "Tempo: MM:SS" (sticker menor, populados de
+  verdade a partir de `GameManager.score`/`GameManager.elapsed_seconds` no momento da
+  vitória), a ilustração da arara (`assets/icons/cards/arara_vermelha.png` — o mesmo PNG
+  1024x1024 de fundo transparente já usado como ícone de carta, reaproveitado aqui em
+  tamanho grande) e 2 botões com halo: "Jogar novamente" (verde, texto em 2 linhas via
+  `Label` filho com `autowrap_mode`, já que `Button.text` nativo do Godot não quebra linha)
+  e "Sair" (vermelho). Os botões usam `theme_override_constants/separation = -60` no
+  container pai (`ImageButtonsGroup`) pra sobrepor levemente a parte de baixo da
+  ilustração, aproximando do efeito do protótipo onde os botões "descansam" sobre a cauda
+  da arara.
+  - **Bug pego na 1ª verificação visual**: a arara não aparecia — `size` real do
+    `TextureRect` em runtime (`game_manage get_node_info`) mostrava `x=0`, porque só o
+    `custom_minimum_size.y` tinha sido setado (320), sem `x`, e `size_flags_horizontal=4`
+    (SHRINK_CENTER) não força nenhuma largura própria. Corrigido: `size_flags_horizontal=3`
+    (fill, ocupa a largura do container) + `custom_minimum_size` ajustado.
+    [[theme_type_variation_gotcha]]-adjacent — mais um caso de "só ficou visível depois de
+    um `editor_screenshot` de verdade", não de leitura de código.
+  - **Ajuste fino**: mesmo depois de visível, sobrava um vão grande entre "Tempo" e a
+    arara — causa: `stretch_mode = KEEP_ASPECT_CENTERED` (5) centraliza a imagem
+    (quadrada, 1024x1024) dentro de uma caixa retangular mais alta que larga, deixando
+    faixas vazias em cima e embaixo. Trocado para `stretch_mode = KEEP_ASPECT` (4), que
+    ancora a imagem escalada no topo-esquerda da caixa em vez de centralizar — a arara
+    agora encosta direto embaixo do texto, e o vazio (inevitável, já que a caixa é mais
+    alta que a proporção 1:1 da imagem) sobra embaixo, onde é absorvido pela sobreposição
+    negativa dos botões em vez de aparecer como um buraco entre o texto e a imagem.
+  - `board.gd`: `_on_game_won()` agora popula `win_score_label`/`win_time_label` e mostra
+    `win_overlay` (em vez de mutar `ScoreTitleLabel`/`ScoreValueLabel` do tabuleiro, que
+    ficam escondidos atrás do overlay de qualquer forma — lógica antiga removida, incluindo
+    o `@onready var score_title_label` que ficou sem nenhum uso). Lógica de reinício
+    extraída pra um `_restart_game()` privado compartilhado entre "Reiniciar" (da Pausa) e
+    o novo "Jogar novamente" (da tela de Parabéns) — ambos fazem exatamente a mesma coisa
+    (zera progresso, reconstrói a grade, reabilita os botões, esconde qualquer overlay
+    aberto). "Sair" da tela de Parabéns reusa o mesmo `_on_sair_pressed()` já existente.
+- **Verificação sem jogar uma partida inteira**: pra conferir a tela de Parabéns sem
+  precisar resolver o tabuleiro de verdade a cada teste visual, adicionei uma linha
+  temporária em `_ready()` (`GameManager.score = 220; _on_game_won()`, comentário `TEMP WIN
+  SCREEN TEST`) só durante o desenvolvimento, tirei os screenshots reais precisando dela,
+  e removi a linha antes de fechar a tarefa — mesmo padrão já usado no teste de estresse do
+  Histórico (dado de teste nunca fica no código final).
+- Fluxo completo confirmado com o jogo rodando de verdade: Pausa abre/fecha corretamente
+  (Continuar), tela de Parabéns aparece com pontuação/tempo reais, "Jogar novamente" reinicia
+  o tabuleiro do zero (pontuação 0, cartas viradas pra baixo, overlay escondido) e "Sair"
+  volta ao menu — mais 51/51 testes automatizados passando depois da limpeza do código de
+  teste.
+- **Ajuste pedido em seguida**: usuário achou a arara pequena demais e pediu pra colocá-la
+  "no fundo, bem maior, podendo passar por trás de alguns elementos como no print" —
+  diferente da 1ª versão (que ficava contida entre o texto e os botões, sem sobrepor nada).
+  Restruturado: `ParrotImage` saiu de dentro do `VBoxContainer` de texto/botões e virou uma
+  camada de fundo própria, direto em `WinOverlay` (entre o `Background` creme e o `Layout`
+  do texto/botões na ordem de desenho — visível atrás de tudo, na frente só do fundo
+  sólido). `Layout` ganhou um `Spacer` (`Control`, `size_flags_vertical=3`) entre o bloco de
+  texto e o `ButtonsBox`, empurrando os botões pro rodapé da tela e deixando o meio livre
+  pra arara aparecer por trás. Título/Score/Time/Spacer/ButtonsBox ganharam
+  `mouse_filter=2` (IGNORE) pra não bloquear cliques por cima da imagem sem necessidade
+  (nenhum deles precisa capturar clique, só os botões dentro do `ButtonsBox`).
+  `ParrotImage` passou a usar âncora de tela cheia com offsets negativos/positivos
+  (`offset_left/top` negativos, `offset_right/bottom` positivos) pra criar uma caixa maior
+  que a própria tela, e `stretch_mode = KEEP_ASPECT_CENTERED` (5) escala a imagem quadrada
+  proporcionalmente dentro dessa caixa maior — o excesso que passa da borda real da tela
+  (412px de largura) simplesmente não é desenhado (cortado pela janela do jogo), dando o
+  efeito de "zoom" sem distorcer a imagem.
+  - Depois de ver o resultado ainda meio contido, usuário pediu "dobre o tamanho atual":
+    dobrado o cálculo (offsets que geravam uma imagem renderizada de ~492x492 viraram
+    ~984x984 de bounding box) — resultado final: a arara ocupa quase a tela inteira,
+    com a ponta da asa direita passando visivelmente atrás do texto "Pontuação"/"Tempo" e a
+    cauda passando atrás do botão "Sair", batendo com o print de referência.
+  - Confirmado de novo com o mesmo truque de teste temporário em `_ready()` (revertido
+    depois) e 51/51 testes automatizados passando.
+  - **Ajuste fino final**: usuário achou o resultado grande demais e pediu "diminua 25%".
+    Como só a largura da caixa (`offset_left`/`offset_right`) determina o tamanho
+    renderizado (a imagem é quadrada e o encaixe é sempre limitado pela largura, já que a
+    caixa é sempre mais alta que larga), reduzir o tamanho final em 25% exigiu resolver a
+    largura-alvo (984px → 738px, 75% da anterior) e, a partir dela, o novo
+    `offset_left`/`offset_right` (±163, contra os ±286 anteriores) — não bastava multiplicar
+    os offsets antigos por 0.75 diretamente, já que a relação entre offset e tamanho final
+    renderizado não é 1:1 (a largura da caixa cresce 2x mais rápido que cada offset
+    individual). `offset_top`/`offset_bottom` mantidos inalterados de propósito: como só a
+    SOMA deles determina a posição vertical do centro da imagem (a altura da caixa em si
+    não afeta o tamanho renderizado, contanto que continue maior que a largura), mexer neles
+    teria deslocado o pássaro verticalmente sem necessidade. Confirmado com
+    `editor_screenshot` real e 51/51 testes automatizados passando.
+
+### Tela de Tutorial: reescrita com mini jogo da memória 2x2 de verdade
+A tela de Tutorial (RF05) nunca tinha recebido nenhuma passada de fidelidade visual — era
+só texto padrão do Godot em 3 parágrafos, sem fonte/cor customizada, sem elemento visual
+nenhum. Usuário mandou o print do protótipo ("Tela Tutorial": título sticker, um card
+branco com uma frase curta de instrução, uma grade 2x2 de cartas, botão "Entendi!") e pediu
+pra implementar com um jogo 2x2 de verdade, não só a imagem estática.
+
+- `scenes/game/tutorial.tscn` reescrito do zero: título "Tutorial" com o mesmo tratamento
+  sticker (Fredoka One 52px, contorno branco 48px + sombra) de todas as outras telas;
+  `InstructionCard` (`Panel`, `StyleBoxFlat` local branco com corner_radius 24 + sombra
+  sutil, sem borda colorida — bate com o card simples do protótipo) contendo a frase única
+  "Toque em 2 cartas para encontrar o par correto!" (Fredoka One 24px, navy, substituindo o
+  texto antigo de 3 parágrafos); `CardGrid` (`GridContainer` 2 colunas) que o script povoa
+  em runtime; `EntendiButton` ganhou o padrão halo+Fredoka já usado em todos os outros
+  botões (antes era um `Button` `LimeButton` liso, sem halo).
+- `scripts/ui/tutorial.gd` reescrito com uma mini-implementação de jogo da memória
+  independente do `GameManager` (2 pares, 4 cartas, `theme_type_variation = CardButton` —
+  o mesmo estilo branco/borda navy das cartas do tabuleiro de verdade): embaralha os
+  valores, cria os 4 botões, e reimplementa localmente a lógica de virar/comparar/
+  desfazer já usada em `board.gd` (`_pop_correct`/`_wobble_incorrect` copiados do mesmo
+  jeito — sem pontuação, sem `GameManager`, é só uma demonstração). Quando os 2 pares são
+  encontrados, a grade se reembaralha automaticamente após 0.5s pra permitir praticar de
+  novo sem precisar sair e voltar à tela.
+- Testado com o jogo rodando de verdade (`project_run(mode="custom", scene=".../
+  tutorial.tscn")`, já que o tutorial só apareceria automaticamente no primeiro acesso, e o
+  save real já tinha `seen_tutorial=true` de sessões anteriores): cliques reais nas 4
+  cartas confirmaram o par certo desabilitando/"pop"-ando e a re-embaralhagem automática
+  depois (novos nós de botão, textos resetados pra "?"), e "Entendi!" navegando de volta
+  pro menu principal corretamente. 51/51 testes automatizados continuam passando.

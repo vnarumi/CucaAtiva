@@ -2,8 +2,10 @@
 
 [ext_resource type="Theme" uid="uid://b5x4p43ewn0fj" path="res://assets/theme/base_theme.tres" id="1_3eqlr"]
 [ext_resource type="Script" uid="uid://bx1u2jvwweic0" path="res://scripts/ui/board.gd" id="2_8jv87"]
-[ext_resource type="Texture2D" uid="uid://c7uxltwv1nlyk" path="res://assets/icons/ui/dica_estrela.svg" id="3_ea46o"]
-[ext_resource type="Texture2D" uid="uid://dveegba3epoe7" path="res://assets/icons/ui/pausa.svg" id="4_63l6i"]
+[ext_resource type="FontFile" uid="uid://dykcomcv4lr1" path="res://assets/fonts/FredokaOne-Regular.ttf" id="3_63l6i"]
+[ext_resource type="Texture2D" uid="uid://ds4ge6t2p6b7n" path="res://assets/icons/ui/buttons/dica_button.png" id="3_ea46o"]
+[ext_resource type="Texture2D" uid="uid://dbyjjahg3b7co" path="res://assets/icons/ui/buttons/pausa_button.png" id="4_63l6i"]
+[ext_resource type="Texture2D" uid="uid://dsxao53engrul" path="res://assets/icons/cards/arara_vermelha.png" id="5_arara"]
 
 [node name="Board" type="Control" unique_id=365468201]
 layout_mode = 3
@@ -28,35 +30,72 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 alignment = 1
 
-[node name="Header" type="HBoxContainer" parent="VBoxContainer" unique_id=1259989405]
-layout_mode = 2
-
-[node name="ScoreLabel" type="Label" parent="VBoxContainer/Header" unique_id=833625193]
+[node name="ScoreGroup" type="VBoxContainer" parent="VBoxContainer" unique_id=1758928074]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Pontuação: 0"
+theme_override_constants/separation = 6
+
+[node name="ScoreTitleLabel" type="Label" parent="VBoxContainer/ScoreGroup" unique_id=106767445]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/outline_size = 48
+theme_override_constants/shadow_outline_size = 48
+theme_override_fonts/font = ExtResource("3_63l6i")
+theme_override_font_sizes/font_size = 52
+text = "Pontuação"
 horizontal_alignment = 1
 
-[node name="DicaButton" type="Button" parent="VBoxContainer/Header" unique_id=1293733392]
-custom_minimum_size = Vector2(64, 64)
+[node name="ScoreValueLabel" type="Label" parent="VBoxContainer/ScoreGroup" unique_id=322119790]
 layout_mode = 2
-theme_type_variation = &"TransparentButton"
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/outline_size = 48
+theme_override_constants/shadow_outline_size = 48
+theme_override_fonts/font = ExtResource("3_63l6i")
+theme_override_font_sizes/font_size = 52
+text = "0 "
+horizontal_alignment = 1
+
+[node name="ScoreSpacer" type="Control" parent="VBoxContainer" unique_id=1637138347]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="CardGrid" type="GridContainer" parent="VBoxContainer" unique_id=1814371828]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Footer" type="Control" parent="VBoxContainer" unique_id=893908470]
+custom_minimum_size = Vector2(0, 190)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DicaButton" type="Button" parent="VBoxContainer/Footer" unique_id=1293733392]
+custom_minimum_size = Vector2(270, 158)
+layout_mode = 0
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -135.0
+offset_top = 16.0
+offset_right = 135.0
+offset_bottom = 174.0
+theme_type_variation = &"ImageButton"
 expand_icon = true
 
-[node name="Icon" type="TextureRect" parent="VBoxContainer/Header/DicaButton" unique_id=1380369130]
+[node name="Icon" type="TextureRect" parent="VBoxContainer/Footer/DicaButton" unique_id=1380369130]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = -8.0
-offset_bottom = -8.0
 mouse_filter = 2
 texture = ExtResource("3_ea46o")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Count" type="Label" parent="VBoxContainer/Header/DicaButton" unique_id=1071313053]
+[node name="Count" type="Label" parent="VBoxContainer/Footer/DicaButton" unique_id=1071313053]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -66,28 +105,44 @@ text = "3"
 horizontal_alignment = 1
 vertical_alignment = 2
 
-[node name="PausaButton" type="Button" parent="VBoxContainer/Header" unique_id=1000723840]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 2
-theme_type_variation = &"YellowCircleButton"
-expand_icon = true
-
-[node name="Icon" type="TextureRect" parent="VBoxContainer/Header/PausaButton" unique_id=806441954]
+[node name="DicaText" type="Label" parent="VBoxContainer/Footer/DicaButton" unique_id=16935674]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = -8.0
-offset_bottom = -8.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("3_63l6i")
+theme_override_font_sizes/font_size = 29
+text = "DICA"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PausaButton" type="Button" parent="VBoxContainer/Footer" unique_id=1000723840]
+custom_minimum_size = Vector2(84, 84)
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -96.0
+offset_top = -96.0
+offset_right = -12.0
+offset_bottom = -12.0
+theme_type_variation = &"ImageButton"
+expand_icon = true
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer/Footer/PausaButton" unique_id=806441954]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
 mouse_filter = 2
 texture = ExtResource("4_63l6i")
 expand_mode = 1
 stretch_mode = 5
-
-[node name="CardGrid" type="GridContainer" parent="VBoxContainer" unique_id=1814371828]
-layout_mode = 2
-size_flags_horizontal = 4
 
 [node name="PauseOverlay" type="Control" parent="." unique_id=927545491]
 process_mode = 3
@@ -96,59 +151,273 @@ anchors_preset = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="Dim" type="ColorRect" parent="PauseOverlay" unique_id=1575182691]
+[node name="Background" type="ColorRect" parent="PauseOverlay" unique_id=1575182691]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0, 0, 0, 0.55)
+color = Color(0.9882353, 0.9098039, 0.69411767, 1)
 
-[node name="Card" type="Panel" parent="PauseOverlay" unique_id=783776020]
+[node name="Layout" type="VBoxContainer" parent="PauseOverlay" unique_id=571854421]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = -32.0
+offset_bottom = -32.0
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="Title" type="Label" parent="PauseOverlay/Layout" unique_id=1152943833]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/outline_size = 48
+theme_override_constants/shadow_outline_size = 48
+theme_override_fonts/font = ExtResource("3_63l6i")
+theme_override_font_sizes/font_size = 52
+text = "Pausa"
+horizontal_alignment = 1
+
+[node name="ContinuarWrapper" type="Control" parent="PauseOverlay/Layout" unique_id=11550720]
+custom_minimum_size = Vector2(280, 100)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Halo" type="Panel" parent="PauseOverlay/Layout/ContinuarWrapper" unique_id=11550721]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_type_variation = &"HaloRectPanel"
+
+[node name="ContinuarButton" type="Button" parent="PauseOverlay/Layout/ContinuarWrapper" unique_id=11550729]
+custom_minimum_size = Vector2(260, 84)
 layout_mode = 0
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -190.0
-offset_right = 200.0
-offset_bottom = 190.0
+offset_left = -130.0
+offset_top = -42.0
+offset_right = 130.0
+offset_bottom = 42.0
+size_flags_horizontal = 4
+theme_type_variation = &"LimeButton"
+theme_override_fonts/font = ExtResource("3_63l6i")
+theme_override_font_sizes/font_size = 32
+text = "Continuar"
 
-[node name="Layout" type="VBoxContainer" parent="PauseOverlay/Card" unique_id=571854421]
+[node name="ReiniciarWrapper" type="Control" parent="PauseOverlay/Layout" unique_id=25400920]
+custom_minimum_size = Vector2(280, 100)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Halo" type="Panel" parent="PauseOverlay/Layout/ReiniciarWrapper" unique_id=25400921]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
-alignment = 1
+theme_type_variation = &"HaloRectPanel"
 
-[node name="Title" type="Label" parent="PauseOverlay/Card/Layout" unique_id=1152943833]
-layout_mode = 2
-text = "Pausado"
-horizontal_alignment = 1
-
-[node name="ContinuarButton" type="Button" parent="PauseOverlay/Card/Layout" unique_id=11550729]
-custom_minimum_size = Vector2(260, 60)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_type_variation = &"LimeButton"
-text = "Continuar"
-
-[node name="ReiniciarButton" type="Button" parent="PauseOverlay/Card/Layout" unique_id=254009207]
-custom_minimum_size = Vector2(260, 60)
-layout_mode = 2
+[node name="ReiniciarButton" type="Button" parent="PauseOverlay/Layout/ReiniciarWrapper" unique_id=254009207]
+custom_minimum_size = Vector2(260, 84)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -130.0
+offset_top = -42.0
+offset_right = 130.0
+offset_bottom = 42.0
 size_flags_horizontal = 4
 theme_type_variation = &"YellowButton"
+theme_override_fonts/font = ExtResource("3_63l6i")
+theme_override_font_sizes/font_size = 32
 text = "Reiniciar"
 
-[node name="SairButton" type="Button" parent="PauseOverlay/Card/Layout" unique_id=678570178]
-custom_minimum_size = Vector2(260, 60)
+[node name="SairWrapper" type="Control" parent="PauseOverlay/Layout" unique_id=67857020]
+custom_minimum_size = Vector2(280, 100)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_type_variation = &"RedButton"
-text = "Sair para o menu"
 
-[connection signal="pressed" from="PauseOverlay/Card/Layout/ContinuarButton" to="." method="_on_continuar_pressed"]
-[connection signal="pressed" from="PauseOverlay/Card/Layout/ReiniciarButton" to="." method="_on_reiniciar_pressed"]
-[connection signal="pressed" from="PauseOverlay/Card/Layout/SairButton" to="." method="_on_sair_pressed"]
+[node name="Halo" type="Panel" parent="PauseOverlay/Layout/SairWrapper" unique_id=67857021]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_type_variation = &"HaloRectPanel"
+
+[node name="SairButton" type="Button" parent="PauseOverlay/Layout/SairWrapper" unique_id=678570178]
+custom_minimum_size = Vector2(260, 84)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -130.0
+offset_top = -42.0
+offset_right = 130.0
+offset_bottom = 42.0
+size_flags_horizontal = 4
+theme_type_variation = &"RedButton"
+theme_override_fonts/font = ExtResource("3_63l6i")
+theme_override_font_sizes/font_size = 32
+text = "Sair"
+
+[node name="WinOverlay" type="Control" parent="." unique_id=927545492]
+visible = false
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Background" type="ColorRect" parent="WinOverlay" unique_id=1575182692]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.9882353, 0.9098039, 0.69411767, 1)
+
+[node name="ParrotImage" type="TextureRect" parent="WinOverlay" unique_id=1152943838]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -163.0
+offset_top = -40.0
+offset_right = 163.0
+offset_bottom = 120.0
+mouse_filter = 2
+texture = ExtResource("5_arara")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Layout" type="VBoxContainer" parent="WinOverlay" unique_id=571854422]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = -32.0
+offset_bottom = -32.0
+mouse_filter = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="WinOverlay/Layout" unique_id=1152943834]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/outline_size = 48
+theme_override_constants/shadow_outline_size = 48
+theme_override_fonts/font = ExtResource("3_63l6i")
+theme_override_font_sizes/font_size = 56
+text = "Parabéns!"
+horizontal_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="WinOverlay/Layout" unique_id=1152943835]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 24
+theme_override_constants/shadow_outline_size = 24
+theme_override_fonts/font = ExtResource("3_63l6i")
+theme_override_font_sizes/font_size = 32
+text = "Pontuação: 0"
+horizontal_alignment = 1
+
+[node name="TimeLabel" type="Label" parent="WinOverlay/Layout" unique_id=1152943836]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 24
+theme_override_constants/shadow_outline_size = 24
+theme_override_fonts/font = ExtResource("3_63l6i")
+theme_override_font_sizes/font_size = 32
+text = "Tempo: 00:00"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="WinOverlay/Layout" unique_id=1152943850]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="ButtonsBox" type="VBoxContainer" parent="WinOverlay/Layout" unique_id=1152943839]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 16
+
+[node name="JogarWrapper" type="Control" parent="WinOverlay/Layout/ButtonsBox" unique_id=1152943840]
+custom_minimum_size = Vector2(260, 96)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Halo" type="Panel" parent="WinOverlay/Layout/ButtonsBox/JogarWrapper" unique_id=1152943841]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_type_variation = &"HaloRectPanel"
+
+[node name="JogarNovamenteButton" type="Button" parent="WinOverlay/Layout/ButtonsBox/JogarWrapper" unique_id=1152943842]
+custom_minimum_size = Vector2(240, 80)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = -40.0
+offset_right = 120.0
+offset_bottom = 40.0
+size_flags_horizontal = 4
+theme_type_variation = &"LimeButton"
+text = " "
+
+[node name="Label" type="Label" parent="WinOverlay/Layout/ButtonsBox/JogarWrapper/JogarNovamenteButton" unique_id=1152943843]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_63l6i")
+theme_override_font_sizes/font_size = 24
+text = "Jogar novamente"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="SairWrapper" type="Control" parent="WinOverlay/Layout/ButtonsBox" unique_id=1152943844]
+custom_minimum_size = Vector2(220, 90)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Halo" type="Panel" parent="WinOverlay/Layout/ButtonsBox/SairWrapper" unique_id=1152943845]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_type_variation = &"HaloRectPanel"
+
+[node name="SairWinButton" type="Button" parent="WinOverlay/Layout/ButtonsBox/SairWrapper" unique_id=1152943846]
+custom_minimum_size = Vector2(200, 74)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -37.0
+offset_right = 100.0
+offset_bottom = 37.0
+size_flags_horizontal = 4
+theme_type_variation = &"RedButton"
+theme_override_fonts/font = ExtResource("3_63l6i")
+theme_override_font_sizes/font_size = 28
+text = "Sair"
+
+[connection signal="pressed" from="PauseOverlay/Layout/ContinuarWrapper/ContinuarButton" to="." method="_on_continuar_pressed"]
+[connection signal="pressed" from="PauseOverlay/Layout/ReiniciarWrapper/ReiniciarButton" to="." method="_on_reiniciar_pressed"]
+[connection signal="pressed" from="PauseOverlay/Layout/SairWrapper/SairButton" to="." method="_on_sair_pressed"]
+[connection signal="pressed" from="WinOverlay/Layout/ButtonsBox/JogarWrapper/JogarNovamenteButton" to="." method="_on_jogar_novamente_pressed"]
+[connection signal="pressed" from="WinOverlay/Layout/ButtonsBox/SairWrapper/SairWinButton" to="." method="_on_sair_pressed"]

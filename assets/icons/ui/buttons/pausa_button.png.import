@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d33huknjwxq58"
-path="res://.godot/imported/jogar.svg-603cc6484a80a1f7dc533c29d617eaa0.ctex"
+uid="uid://dbyjjahg3b7co"
+path="res://.godot/imported/pausa_button.png-d8833c43ed1bdbd8a2bc0ab63f6b0a4d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/ui/jogar.svg"
-dest_files=["res://.godot/imported/jogar.svg-603cc6484a80a1f7dc533c29d617eaa0.ctex"]
+source_file="res://assets/icons/ui/buttons/pausa_button.png"
+dest_files=["res://.godot/imported/pausa_button.png-d8833c43ed1bdbd8a2bc0ab63f6b0a4d.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

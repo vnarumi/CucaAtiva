@@ -11,10 +11,10 @@ border_width_top = 3
 border_width_right = 3
 border_width_bottom = 3
 border_color = Color(0.31764707, 0.6, 0.80784315, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yge07"]
 content_margin_left = 4.0
@@ -84,6 +84,21 @@ shadow_color = Color(0, 0, 0, 0.3019608)
 shadow_size = 5
 shadow_offset = Vector2(3, 5)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_76o7c"]
+bg_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tpimo"]
+bg_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tgw3v"]
+bg_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sjf5c"]
+bg_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t651h"]
+bg_color = Color(0, 0, 0, 0)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fq06v"]
 content_margin_left = 12.0
 content_margin_top = 12.0
@@ -95,10 +110,10 @@ border_width_top = 3
 border_width_right = 3
 border_width_bottom = 3
 border_color = Color(0.42352942, 0.5254902, 0.06666667, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xehir"]
 content_margin_left = 12.0
@@ -130,10 +145,10 @@ border_width_top = 3
 border_width_right = 3
 border_width_bottom = 3
 border_color = Color(0.7607843, 0.23137255, 0.23137255, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6fnhc"]
 bg_color = Color(0, 0, 0, 0)
@@ -164,11 +179,11 @@ border_width_left = 3
 border_width_top = 3
 border_width_right = 3
 border_width_bottom = 3
-border_color = Color(0.8745098, 0.72156864, 0.21960784, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.6784314, 0.5568628, 0.16470589, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qn7hb"]
 content_margin_left = 8.0
@@ -204,6 +219,12 @@ HaloCirclePanel/base_type = &"Panel"
 HaloCirclePanel/styles/panel = SubResource("StyleBoxFlat_nl8gm")
 HaloRectPanel/base_type = &"Panel"
 HaloRectPanel/styles/panel = SubResource("StyleBoxFlat_8gjwc")
+ImageButton/base_type = &"Button"
+ImageButton/styles/disabled = SubResource("StyleBoxFlat_76o7c")
+ImageButton/styles/focus = SubResource("StyleBoxFlat_tpimo")
+ImageButton/styles/hover = SubResource("StyleBoxFlat_tgw3v")
+ImageButton/styles/normal = SubResource("StyleBoxFlat_sjf5c")
+ImageButton/styles/pressed = SubResource("StyleBoxFlat_t651h")
 Label/colors/font_color = Color(0.043137256, 0.16078432, 0.4509804, 1)
 Label/font_sizes/font_size = 32
 LimeButton/base_type = &"Button"
