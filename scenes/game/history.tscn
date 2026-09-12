@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://c0ids564iy0vo"]
+
+[ext_resource type="Theme" uid="uid://b5x4p43ewn0fj" path="res://assets/theme/base_theme.tres" id="1_p3xra"]
+[ext_resource type="Script" uid="uid://cirodrc6w4rr5" path="res://scripts/ui/history.gd" id="2_bedcq"]
+
+[node name="History" type="Control" unique_id=1580752255]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_p3xra")
+script = ExtResource("2_bedcq")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1433440306]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.9882353, 0.9098039, 0.69411767, 1)
+
+[node name="Layout" type="VBoxContainer" parent="." unique_id=2100645641]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+alignment = 1
+
+[node name="Title" type="Label" parent="Layout" unique_id=241326299]
+layout_mode = 2
+text = "Histórico"
+horizontal_alignment = 1
+
+[node name="EmptyLabel" type="Label" parent="Layout" unique_id=684472336]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Nenhuma partida vencida ainda. Jogue e vença para aparecer aqui!"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Layout" unique_id=334865385]
+custom_minimum_size = Vector2(0, 320)
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_scroll_mode = 0
+
+[node name="List" type="VBoxContainer" parent="Layout/ScrollContainer" unique_id=545309167]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VoltarButton" type="Button" parent="Layout" unique_id=1516434690]
+custom_minimum_size = Vector2(240, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"RedButton"
+text = "Voltar"
+
+[connection signal="pressed" from="Layout/VoltarButton" to="." method="_on_voltar_pressed"]

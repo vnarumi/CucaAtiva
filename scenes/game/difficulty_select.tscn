@@ -1,0 +1,65 @@
+[gd_scene format=3 uid="uid://dg6vo7gyarnpf"]
+
+[ext_resource type="Theme" uid="uid://ioydbkdykfmq" path="res://assets/theme/base_theme.tres" id="1_yopkh"]
+[ext_resource type="Script" uid="uid://cobdikkm0xfs1" path="res://scripts/ui/difficulty_select.gd" id="2_nq8i4"]
+
+[node name="DifficultySelect" type="Control" unique_id=1376686066]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_yopkh")
+script = ExtResource("2_nq8i4")
+
+[node name="Background" type="ColorRect" parent="." unique_id=300508510]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.9882353, 0.9098039, 0.69411767, 1)
+
+[node name="Layout" type="VBoxContainer" parent="." unique_id=1385956755]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+alignment = 1
+
+[node name="Title" type="Label" parent="Layout" unique_id=1088726840]
+layout_mode = 2
+text = "Escolha a dificuldade"
+horizontal_alignment = 1
+
+[node name="FacilButton" type="Button" parent="Layout" unique_id=994127791]
+custom_minimum_size = Vector2(240, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"YellowButton"
+text = "Fácil"
+
+[node name="MedioButton" type="Button" parent="Layout" unique_id=898762389]
+custom_minimum_size = Vector2(240, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"LimeButton"
+text = "Médio"
+
+[node name="DificilButton" type="Button" parent="Layout" unique_id=1745980089]
+custom_minimum_size = Vector2(240, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"BlueButton"
+text = "Difícil"
+
+[node name="VoltarButton" type="Button" parent="Layout" unique_id=199977567]
+custom_minimum_size = Vector2(240, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"RedButton"
+text = "Voltar"
+
+[connection signal="pressed" from="Layout/FacilButton" to="." method="_on_facil_pressed"]
+[connection signal="pressed" from="Layout/MedioButton" to="." method="_on_medio_pressed"]
+[connection signal="pressed" from="Layout/DificilButton" to="." method="_on_dificil_pressed"]
+[connection signal="pressed" from="Layout/VoltarButton" to="." method="_on_voltar_pressed"]

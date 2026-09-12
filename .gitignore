@@ -1,3 +1,6 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Claude Code session-local runtime files
+.claude/scheduled_tasks.lock

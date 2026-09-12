@@ -1,0 +1,154 @@
+[gd_scene format=3 uid="uid://dst3tpj6a6aqv"]
+
+[ext_resource type="Theme" uid="uid://b5x4p43ewn0fj" path="res://assets/theme/base_theme.tres" id="1_3eqlr"]
+[ext_resource type="Script" uid="uid://bx1u2jvwweic0" path="res://scripts/ui/board.gd" id="2_8jv87"]
+[ext_resource type="Texture2D" uid="uid://c7uxltwv1nlyk" path="res://assets/icons/ui/dica_estrela.svg" id="3_ea46o"]
+[ext_resource type="Texture2D" uid="uid://dveegba3epoe7" path="res://assets/icons/ui/pausa.svg" id="4_63l6i"]
+
+[node name="Board" type="Control" unique_id=365468201]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_3eqlr")
+script = ExtResource("2_8jv87")
+
+[node name="Background" type="ColorRect" parent="." unique_id=810744652]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.9882353, 0.9098039, 0.69411767, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=94164810]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+alignment = 1
+
+[node name="Header" type="HBoxContainer" parent="VBoxContainer" unique_id=1259989405]
+layout_mode = 2
+
+[node name="ScoreLabel" type="Label" parent="VBoxContainer/Header" unique_id=833625193]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Pontuação: 0"
+horizontal_alignment = 1
+
+[node name="DicaButton" type="Button" parent="VBoxContainer/Header" unique_id=1293733392]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+theme_type_variation = &"TransparentButton"
+expand_icon = true
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer/Header/DicaButton" unique_id=1380369130]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+mouse_filter = 2
+texture = ExtResource("3_ea46o")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Count" type="Label" parent="VBoxContainer/Header/DicaButton" unique_id=1071313053]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_colors/font_color = Color(0.043137256, 0.16078432, 0.4509804, 1)
+theme_override_font_sizes/font_size = 20
+text = "3"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="PausaButton" type="Button" parent="VBoxContainer/Header" unique_id=1000723840]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+theme_type_variation = &"YellowCircleButton"
+expand_icon = true
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer/Header/PausaButton" unique_id=806441954]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+mouse_filter = 2
+texture = ExtResource("4_63l6i")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CardGrid" type="GridContainer" parent="VBoxContainer" unique_id=1814371828]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="PauseOverlay" type="Control" parent="." unique_id=927545491]
+process_mode = 3
+visible = false
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Dim" type="ColorRect" parent="PauseOverlay" unique_id=1575182691]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.55)
+
+[node name="Card" type="Panel" parent="PauseOverlay" unique_id=783776020]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -190.0
+offset_right = 200.0
+offset_bottom = 190.0
+
+[node name="Layout" type="VBoxContainer" parent="PauseOverlay/Card" unique_id=571854421]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+alignment = 1
+
+[node name="Title" type="Label" parent="PauseOverlay/Card/Layout" unique_id=1152943833]
+layout_mode = 2
+text = "Pausado"
+horizontal_alignment = 1
+
+[node name="ContinuarButton" type="Button" parent="PauseOverlay/Card/Layout" unique_id=11550729]
+custom_minimum_size = Vector2(260, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"LimeButton"
+text = "Continuar"
+
+[node name="ReiniciarButton" type="Button" parent="PauseOverlay/Card/Layout" unique_id=254009207]
+custom_minimum_size = Vector2(260, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"YellowButton"
+text = "Reiniciar"
+
+[node name="SairButton" type="Button" parent="PauseOverlay/Card/Layout" unique_id=678570178]
+custom_minimum_size = Vector2(260, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"RedButton"
+text = "Sair para o menu"
+
+[connection signal="pressed" from="PauseOverlay/Card/Layout/ContinuarButton" to="." method="_on_continuar_pressed"]
+[connection signal="pressed" from="PauseOverlay/Card/Layout/ReiniciarButton" to="." method="_on_reiniciar_pressed"]
+[connection signal="pressed" from="PauseOverlay/Card/Layout/SairButton" to="." method="_on_sair_pressed"]

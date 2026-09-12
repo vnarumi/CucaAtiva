@@ -1,17 +1,201 @@
 [gd_scene format=3 uid="uid://xntw4g4hsggg"]
 
-[ext_resource type="Theme" uid="uid://ioydbkdykfmq" path="res://assets/theme/base_theme.tres" id="1_fsom3"]
+[ext_resource type="Theme" uid="uid://b5x4p43ewn0fj" path="res://assets/theme/base_theme.tres" id="1_fsom3"]
+[ext_resource type="Script" uid="uid://b5f3nxkmfqkps" path="res://scripts/ui/main_menu.gd" id="2_0ebjn"]
+[ext_resource type="FontFile" uid="uid://dykcomcv4lr1" path="res://assets/fonts/FredokaOne-Regular.ttf" id="3_5seab"]
+[ext_resource type="Texture2D" uid="uid://d33huknjwxq58" path="res://assets/icons/ui/jogar.svg" id="3_wem23"]
+[ext_resource type="Texture2D" uid="uid://5u5iyv52eh8u" path="res://assets/icons/ui/historico.svg" id="4_3ovsr"]
+[ext_resource type="Texture2D" uid="uid://b21gkp11wjbgx" path="res://assets/icons/ui/configuracoes.svg" id="5_5seab"]
+[ext_resource type="FontFile" uid="uid://c7v5y6ylul1pk" path="res://assets/fonts/Gabarito-Black.ttf" id="6_4xg86"]
 
 [node name="MainMenu" type="Panel" unique_id=845033172]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource("1_fsom3")
+script = ExtResource("2_0ebjn")
 
-[node name="TitleLabel" type="Label" parent="." unique_id=1319293832]
+[node name="Layout" type="VBoxContainer" parent="." unique_id=1651539334]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
-text = "Cuca Ativa"
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="Layout" unique_id=1319293832]
+custom_minimum_size = Vector2(0, 110)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("3_5seab")
+theme_override_font_sizes/font_size = 44
+text = "Jogo da Memória"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="Layout" unique_id=522595241]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.16470589, 0.61960787, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("3_5seab")
+theme_override_font_sizes/font_size = 48
+text = "Cuca Ativa"
+horizontal_alignment = 1
+
+[node name="JogarWrapper" type="Control" parent="Layout" unique_id=794302277]
+custom_minimum_size = Vector2(190, 190)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Halo" type="Panel" parent="Layout/JogarWrapper" unique_id=1241847913]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_type_variation = &"HaloCirclePanel"
+
+[node name="JogarButton" type="Button" parent="Layout/JogarWrapper" unique_id=894245256]
+custom_minimum_size = Vector2(168, 168)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -84.0
+offset_top = -84.0
+offset_right = 84.0
+offset_bottom = 84.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+theme_type_variation = &"GreenCircleButton"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Icon" type="TextureRect" parent="Layout/JogarWrapper/JogarButton" unique_id=1977387869]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+mouse_filter = 2
+texture = ExtResource("3_wem23")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ShortcutsRow" type="HBoxContainer" parent="Layout" unique_id=1401051558]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 20
+
+[node name="HistoricoGroup" type="VBoxContainer" parent="Layout/ShortcutsRow" unique_id=1206677334]
+layout_mode = 2
+alignment = 1
+
+[node name="HistoricoWrapper" type="Control" parent="Layout/ShortcutsRow/HistoricoGroup" unique_id=1127294394]
+custom_minimum_size = Vector2(156, 126)
+layout_mode = 2
+
+[node name="Halo" type="Panel" parent="Layout/ShortcutsRow/HistoricoGroup/HistoricoWrapper" unique_id=131921313]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_type_variation = &"HaloRectPanel"
+
+[node name="HistoricoButton" type="Button" parent="Layout/ShortcutsRow/HistoricoGroup/HistoricoWrapper" unique_id=1589748831]
+custom_minimum_size = Vector2(140, 110)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -70.0
+offset_top = -55.0
+offset_right = 70.0
+offset_bottom = 55.0
+size_flags_horizontal = 4
+theme_type_variation = &"BlueButton"
+expand_icon = true
+
+[node name="Icon" type="TextureRect" parent="Layout/ShortcutsRow/HistoricoGroup/HistoricoWrapper/HistoricoButton" unique_id=1519549405]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+mouse_filter = 2
+texture = ExtResource("4_3ovsr")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Caption" type="Label" parent="Layout/ShortcutsRow/HistoricoGroup" unique_id=397868383]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_4xg86")
+theme_override_font_sizes/font_size = 22
+text = "HISTÓRICO"
+horizontal_alignment = 1
+
+[node name="ConfiguracoesGroup" type="VBoxContainer" parent="Layout/ShortcutsRow" unique_id=24469512]
+layout_mode = 2
+alignment = 1
+
+[node name="ConfiguracoesWrapper" type="Control" parent="Layout/ShortcutsRow/ConfiguracoesGroup" unique_id=922204521]
+custom_minimum_size = Vector2(156, 126)
+layout_mode = 2
+
+[node name="Halo" type="Panel" parent="Layout/ShortcutsRow/ConfiguracoesGroup/ConfiguracoesWrapper" unique_id=44571975]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"HaloRectPanel"
+
+[node name="ConfiguracoesButton" type="Button" parent="Layout/ShortcutsRow/ConfiguracoesGroup/ConfiguracoesWrapper" unique_id=2120956781]
+custom_minimum_size = Vector2(140, 110)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -70.0
+offset_top = -55.0
+offset_right = 70.0
+offset_bottom = 55.0
+size_flags_horizontal = 4
+theme_type_variation = &"YellowButton"
+expand_icon = true
+
+[node name="Icon" type="TextureRect" parent="Layout/ShortcutsRow/ConfiguracoesGroup/ConfiguracoesWrapper/ConfiguracoesButton" unique_id=1207627283]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+mouse_filter = 2
+texture = ExtResource("5_5seab")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Caption" type="Label" parent="Layout/ShortcutsRow/ConfiguracoesGroup" unique_id=875942470]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_4xg86")
+theme_override_font_sizes/font_size = 22
+text = "CONFIGURAÇÕES"
+horizontal_alignment = 1
+
+[connection signal="pressed" from="Layout/JogarWrapper/JogarButton" to="." method="_on_jogar_pressed"]
+[connection signal="pressed" from="Layout/ShortcutsRow/HistoricoGroup/HistoricoWrapper/HistoricoButton" to="." method="_on_historico_pressed"]
+[connection signal="pressed" from="Layout/ShortcutsRow/ConfiguracoesGroup/ConfiguracoesWrapper/ConfiguracoesButton" to="." method="_on_configuracoes_pressed"]

@@ -7,3 +7,10 @@ base já incluída no plugin godot-ai. Convenção: um arquivo `test_*.gd` por s
 Preferir testar `scripts/core/*.gd` (lógica pura, sem dependência de cena/editor) — é onde
 vivem as regras de negócio RN01-RN06. Ver `docs/plano-de-desenvolvimento.md` Fase 1 e
 `docs/requisitos.md`.
+
+**Importante:** todo `test_*.gd` precisa da anotação `@tool` na primeira linha (antes do
+`extends McpTestSuite`). Sem ela, `test_run` falha para a suíte inteira com
+"cannot instantiate — abstract or broken", porque o runner instancia os scripts a partir do
+processo do editor, e `McpTestSuite` (base) já é `@tool` — um script comum não roda nesse
+contexto. Esse erro se parece com um problema de cache do GDScript (a mensagem sugere
+reiniciar o editor), mas não é: reiniciar não resolve, faltar `@tool` sim.

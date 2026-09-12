@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://1a3e5x516j2w"]
+
+[ext_resource type="Theme" uid="uid://ioydbkdykfmq" path="res://assets/theme/base_theme.tres" id="1_g8ooi"]
+[ext_resource type="Script" uid="uid://bkm5xgguct00i" path="res://scripts/ui/tutorial.gd" id="2_5bk5s"]
+
+[node name="Tutorial" type="Control" unique_id=1160823782]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource("1_g8ooi")
+script = ExtResource("2_5bk5s")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1272747175]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.9882353, 0.9098039, 0.69411767, 1)
+
+[node name="Layout" type="VBoxContainer" parent="." unique_id=565704384]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 80.0
+offset_right = -80.0
+alignment = 1
+
+[node name="Title" type="Label" parent="Layout" unique_id=492137755]
+layout_mode = 2
+text = "Como jogar"
+horizontal_alignment = 1
+
+[node name="Body" type="Label" parent="Layout" unique_id=1161887733]
+layout_mode = 2
+text = "Escolha um nível de dificuldade e toque nas cartas para virá-las, duas de cada vez.
+
+Encontre os pares iguais: acertando, você ganha pontos. Errando, perde poucos pontos — sua pontuação nunca fica negativa.
+
+Quando encontrar todos os pares do tabuleiro, você vence a partida!"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="EntendiButton" type="Button" parent="Layout" unique_id=2040450341]
+custom_minimum_size = Vector2(240, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"LimeButton"
+text = "Entendi!"
+
+[connection signal="pressed" from="Layout/EntendiButton" to="." method="_on_entendi_pressed"]

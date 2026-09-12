@@ -1,0 +1,188 @@
+[gd_scene format=3 uid="uid://b1xouoneotidd"]
+
+[ext_resource type="Theme" uid="uid://ioydbkdykfmq" path="res://assets/theme/base_theme.tres" id="1_en3gw"]
+[ext_resource type="Script" uid="uid://ctimmt3a4a7xn" path="res://scripts/ui/settings.gd" id="2_7hbhs"]
+[ext_resource type="Texture2D" uid="uid://thmx48m6dml8" path="res://assets/icons/ui/som.svg" id="3_t7dv6"]
+[ext_resource type="Texture2D" uid="uid://bhr6tvjr67bdn" path="res://assets/icons/ui/checkmark.svg" id="4_qunfc"]
+[ext_resource type="Texture2D" uid="uid://mm5kw04bk52w" path="res://assets/icons/ui/texto.svg" id="5_i1rig"]
+
+[node name="Settings" type="Control" unique_id=499709253]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_en3gw")
+script = ExtResource("2_7hbhs")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1040636313]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.9882353, 0.9098039, 0.69411767, 1)
+
+[node name="Layout" type="VBoxContainer" parent="." unique_id=1555673730]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+alignment = 1
+
+[node name="Title" type="Label" parent="Layout" unique_id=976140887]
+layout_mode = 2
+text = "Configurações"
+horizontal_alignment = 1
+
+[node name="VolumeSection" type="VBoxContainer" parent="Layout" unique_id=637498619]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TitleRow" type="HBoxContainer" parent="Layout/VolumeSection" unique_id=1570731689]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Layout/VolumeSection/TitleRow" unique_id=687835019]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+texture = ExtResource("3_t7dv6")
+stretch_mode = 5
+
+[node name="VolumeLabel" type="Label" parent="Layout/VolumeSection/TitleRow" unique_id=1615599836]
+layout_mode = 2
+text = "Volume do jogo"
+horizontal_alignment = 1
+
+[node name="VolumeButtons" type="HBoxContainer" parent="Layout/VolumeSection" unique_id=1544029734]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="MudoButton" type="Button" parent="Layout/VolumeSection/VolumeButtons" unique_id=618259796]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+theme_type_variation = &"YellowButton"
+text = "Mudo"
+
+[node name="Check" type="TextureRect" parent="Layout/VolumeSection/VolumeButtons/MudoButton" unique_id=2123945721]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -34.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = 30.0
+mouse_filter = 2
+texture = ExtResource("4_qunfc")
+stretch_mode = 5
+
+[node name="BaixoButton" type="Button" parent="Layout/VolumeSection/VolumeButtons" unique_id=348536522]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+theme_type_variation = &"YellowButton"
+text = "Baixo"
+
+[node name="Check" type="TextureRect" parent="Layout/VolumeSection/VolumeButtons/BaixoButton" unique_id=1852456648]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -34.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = 30.0
+mouse_filter = 2
+texture = ExtResource("4_qunfc")
+stretch_mode = 5
+
+[node name="AltoButton" type="Button" parent="Layout/VolumeSection/VolumeButtons" unique_id=882619090]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+theme_type_variation = &"YellowButton"
+text = "Alto"
+
+[node name="Check" type="TextureRect" parent="Layout/VolumeSection/VolumeButtons/AltoButton" unique_id=906315997]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -34.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = 30.0
+mouse_filter = 2
+texture = ExtResource("4_qunfc")
+stretch_mode = 5
+
+[node name="FontSizeSection" type="VBoxContainer" parent="Layout" unique_id=1532063421]
+layout_mode = 2
+
+[node name="TitleRow" type="HBoxContainer" parent="Layout/FontSizeSection" unique_id=1564096504]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Layout/FontSizeSection/TitleRow" unique_id=789851304]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+texture = ExtResource("5_i1rig")
+stretch_mode = 5
+
+[node name="FontSizeLabel" type="Label" parent="Layout/FontSizeSection/TitleRow" unique_id=2075173532]
+layout_mode = 2
+text = "Tamanho da letra"
+horizontal_alignment = 1
+
+[node name="FontSizeButtons" type="HBoxContainer" parent="Layout/FontSizeSection" unique_id=1322355664]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="NormalButton" type="Button" parent="Layout/FontSizeSection/FontSizeButtons" unique_id=632210065]
+custom_minimum_size = Vector2(140, 100)
+layout_mode = 2
+theme_type_variation = &"YellowButton"
+text = "Normal"
+
+[node name="Check" type="TextureRect" parent="Layout/FontSizeSection/FontSizeButtons/NormalButton" unique_id=522528992]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -34.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = 30.0
+mouse_filter = 2
+texture = ExtResource("4_qunfc")
+stretch_mode = 5
+
+[node name="GrandeButton" type="Button" parent="Layout/FontSizeSection/FontSizeButtons" unique_id=285560639]
+custom_minimum_size = Vector2(140, 100)
+layout_mode = 2
+theme_type_variation = &"YellowButton"
+text = "Grande"
+
+[node name="Check" type="TextureRect" parent="Layout/FontSizeSection/FontSizeButtons/GrandeButton" unique_id=708358929]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -34.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = 30.0
+mouse_filter = 2
+texture = ExtResource("4_qunfc")
+stretch_mode = 5
+
+[node name="VoltarButton" type="Button" parent="Layout" unique_id=1508981139]
+custom_minimum_size = Vector2(240, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"RedButton"
+text = "Voltar"
+
+[connection signal="pressed" from="Layout/VoltarButton" to="." method="_on_voltar_pressed"]
