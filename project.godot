@@ -33,7 +33,7 @@ window/size/viewport_width=412
 window/size/viewport_height=917
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
-window/handheld/orientation="portrait"
+window/handheld/orientation=1.0
 
 [editor_plugins]
 
@@ -48,3 +48,4 @@ enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg")
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true

@@ -170,7 +170,7 @@ Sem lógica de jogo real ainda.
 - Testado: 51 testes automatizados continuam passando após a refatoração do menu.
 - Agentes: `godot-scene-builder` + `godot-qa-tester`.
 
-## Fase 7 — Exportação Android (RNF09, RNF10) — auditoria feita, export manual pendente
+## Fase 7 — Exportação Android (RNF09, RNF10) — concluída (export real feito e testado num aparelho)
 - RNF09 (LGPD) — auditado e confirmado: `grep` em todo `scripts/` por
   `HTTPRequest`/`HTTPClient`/`WebSocket`/`OS.get_unique_id`/`OS.request_permission`/nomes de
   SDKs de analytics/anúncios (`Analytics`, `Telemetry`, `AdMob`, `Firebase`) não encontrou
@@ -216,6 +216,62 @@ Sem lógica de jogo real ainda.
    real; release só depois de validar).
 - Agente: `godot-gameplay-engineer` (configuração de projeto) — mas a etapa final de
   clicar em "Export" é do usuário, não automatizável por aqui.
+
+### Export Android concluído nesta sessão — RNF10 fechado
+Depois que o usuário instalou o Android Studio, seguimos os passos manuais acima em
+conjunto (eu resolvendo o que dava por fora da UI — SDK/Java paths, keystore, diagnóstico
+de erros — e o usuário clicando nos botões do editor). Três problemas reais apareceram no
+caminho, todos resolvidos:
+
+1. **Build falhava com "Unsupported class file major version 69"**: o JBR (JDK embutido) do
+   Android Studio instalado era **Java 25**, versão nova demais pro Gradle 8.11.1 que o
+   Godot baixa — o Gradle roda com um JDK mais antigo (17, do PATH do sistema) e não
+   consegue carregar bytecode compilado por um JDK 25. Corrigido apontando o **Java SDK
+   Path** do Godot (Editor Settings → Export → Android) pra um JDK 17 dedicado já instalado
+   separadamente (`C:\Program Files\Java\jdk-17`), em vez do JBR do Android Studio.
+2. **Orientação sempre saía "landscape" mesmo com o projeto configurado como "portrait"**
+   — o achado mais interessante da sessão. Diagnóstico completo:
+   - O `AndroidManifest.xml` **estático** do template de build customizado
+     (`android/build/src/main/AndroidManifest.xml`) tinha `landscape` fixo (só corrigido
+     na primeira edição manual, e essa correção realmente "colou" — esse arquivo é
+     estático, não é regerado pelo Godot).
+   - Só que isso não bastou: os arquivos `android/build/src/debug/AndroidManifest.xml` e
+     `android/build/src/release/AndroidManifest.xml` **são regenerados do zero pelo Godot a
+     cada export** (confirmado testando: qualquer edição manual neles é perdida no export
+     seguinte; travar os arquivos como somente-leitura só faz o export falhar com erro
+     fatal de "não foi possível gravar" — não é um caminho viável).
+   - Peguei o código-fonte real do Godot (`platform/android/export/gradle_export_util.cpp`,
+     função `_get_activity_tag`) pra entender a lógica exata: ela lê a project setting
+     `display/window/handheld/orientation` e escolhe a string do manifest via um switch,
+     com **`SCREEN_LANDSCAPE` como caso `default`** — ou seja, qualquer valor que não bata
+     exatamente com um dos casos nomeados cai em "landscape" silenciosamente.
+   - **Causa raiz**: essa configuração no `project.godot` estava salva como a **string**
+     `"portrait"` em vez do **inteiro** do enum (`1`) — provavelmente porque foi escrita via
+     `project_manage(settings_set)` numa sessão anterior passando o valor como texto, sem o
+     Godot reclamar na hora (o tipo não é validado ao gravar por essa via). O código C++ faz
+     `int(valor_da_config)`: convertendo a string `"portrait"` (não-numérica) pra inteiro dá
+     `0`, e `0` é exatamente o valor do enum `SCREEN_LANDSCAPE` → cai no caso `default` →
+     gera sempre "landscape", nos dois manifests dinâmicos, não importa quantas vezes
+     editássemos os arquivos à mão.
+   - **Correção de verdade**: `project_manage(settings_set)` de novo, mas passando `1`
+     (número) em vez de `"portrait"` (texto) — `project.godot` agora tem
+     `window/handheld/orientation=1.0`. Confirmado com `aapt2 dump xmltree` no `.apk`
+     exportado: `android:screenOrientation` mudou de `0` pra `1` (portrait de verdade).
+   - **Lição pra lembrar**: `project_manage(settings_set)` não valida o tipo esperado de uma
+     project setting baseada em enum — passar uma string amigável (`"portrait"`) em vez do
+     índice numérico do enum grava sem erro, mas quebra silenciosamente qualquer código C++
+     que espere um inteiro. Vale sempre conferir o tipo (`settings_get` mostra `"type"`)
+     depois de setar uma configuração de enum, especialmente uma que nunca tinha sido
+     testada em export real antes (esse bug ficou invisível a sessão inteira porque nada
+     rodando dentro do editor/jogo lia essa configuração especificamente — só o exportador
+     Android lê).
+3. **Nome de pacote único**: `com.cucaativa` (2 segmentos) passa na validação do Android
+   normalmente, sem precisar de um 3º segmento.
+- Testado de ponta a ponta pelo usuário: `.apk` de release assinado, instalado num
+  aparelho Android real, abrindo corretamente travado em retrato. **RNF10 fechado.**
+- Autoload `_mcp_game_helper` **mantido de propósito** — ainda em uso nesta sessão. Só deve
+  ser removido, junto com a desativação do plugin Godot AI, imediatamente antes de um build
+  de release final destinado à distribuição de verdade (não este `.apk` de teste).
 
 ## Fase 8 — QA contínua — primeira passada completa feita nesta sessão
 - `test_run`: 51/51 passando.
