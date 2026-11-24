@@ -258,6 +258,7 @@ func _on_card_pressed(index: int) -> void:
 
 func _on_match_found(pair_id: int) -> void:
 	AudioManager.play_correct()
+	SettingsManager.vibrate_match()
 	if pair_id >= 0 and pair_id < GameManager.card_icons.size():
 		var icon_path: String = GameManager.card_icons[pair_id]
 		AudioManager.play_animal(icon_path)
@@ -302,6 +303,7 @@ func _show_sound_caption(parts: Array) -> void:
 
 func _on_match_failed() -> void:
 	AudioManager.play_incorrect()
+	SettingsManager.vibrate_miss()
 	var indices := _pending_indices.duplicate()
 	for i in indices:
 		_wobble_incorrect(_buttons[i])
@@ -338,6 +340,7 @@ func _on_game_won() -> void:
 		await AudioManager.animal_sequence_finished
 	if not is_inside_tree():
 		return
+	SettingsManager.vibrate_win()
 	win_overlay.visible = true
 	# O selo da colocação "estoura" de leve ao aparecer, pra chamar a atenção.
 	await get_tree().process_frame

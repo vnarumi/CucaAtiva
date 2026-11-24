@@ -30,13 +30,37 @@ const FONT_SCALES := {
 }
 
 
+@onready var vibration_buttons: Dictionary = {
+	"ligada": $Layout/VibrationSection/OptionsRow/OptionsList/LigadaButton,
+	"desligada": $Layout/VibrationSection/OptionsRow/OptionsList/DesligadaButton,
+}
+
+
 func _ready() -> void:
+	for option in vibration_buttons:
+		vibration_buttons[option].pressed.connect(_on_vibration_pressed.bind(option))
+	_refresh_vibration_checks()
 	for level in volume_buttons:
 		volume_buttons[level].pressed.connect(_on_volume_pressed.bind(level))
 	for level in font_buttons:
 		font_buttons[level].pressed.connect(_on_font_pressed.bind(level))
 	_refresh_volume_checks()
 	_refresh_font_checks()
+
+
+## Vibração: interruptor próprio, independente do volume. Ao ligar, dá um
+## pulso de amostra pra a pessoa sentir como é.
+func _on_vibration_pressed(option: String) -> void:
+	SettingsManager.set_vibration_enabled(option == "ligada")
+	if option == "ligada":
+		SettingsManager.vibrate_match()
+	_refresh_vibration_checks()
+
+
+func _refresh_vibration_checks() -> void:
+	var current := "ligada" if SettingsManager.vibration_enabled else "desligada"
+	for option in vibration_buttons:
+		vibration_buttons[option].get_node("Row/Check").visible = option == current
 
 
 func _on_volume_pressed(level: String) -> void:
