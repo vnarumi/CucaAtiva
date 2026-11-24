@@ -27,3 +27,39 @@ Os arquivos CC BY exigem atribuição (autor + licença), listada abaixo.
 - Gerados localmente com o **Piper** (https://github.com/OHF-Voice/piper1-gpl) e a voz
   **pt_BR-faber-medium** (dataset CC0, https://github.com/OHF-Voice/voice-datasets), com
   `length_scale` 1.6 nos nomes e 1.3 nos sons (bem devagar, para o público idoso) e o silêncio das pontas cortado.
+
+## Sons adicionados em 24/11/2026 (PREENCHER: link, autor e licença de cada um)
+
+Baixados manualmente e processados (trecho de até 3 s com maior energia, fade-out,
+volume igualado em -17 dB RMS, convertidos para WAV 22050 Hz mono). Os originais
+estão guardados fora do projeto.
+
+| Animal | Link da página | Autor | Licença |
+|---|---|---|---|
+| arara | | | |
+| arara_azul | | | |
+| baleia | | | |
+| bezerro | | | |
+| bufalo | | | |
+| burro | | | |
+| cabrito | | | |
+| cachorro | | | |
+| canario | | | |
+| chita | | | |
+| coruja | | | |
+| esquilo | | | |
+| golfinho | | | |
+| hipopotamo | | | |
+| leao_marinho | | | |
+| macaco | | | |
+| onca | | | |
+| pardal | | | |
+| pato | | | |
+| periquito | | | |
+| pinguim | | | |
+| rinoceronte | | | |
+| sapo | | | |
+| spitz | | | |
+| tigre | | | |
+| vespa | | | |
+| zebra | | | |
