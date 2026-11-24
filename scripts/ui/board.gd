@@ -11,7 +11,10 @@ const GRID_SEPARATION := 2.0
 const GRID_SIDE_MARGIN := 32.0
 ## Margem do topo (offset_top do VBoxContainer) + folga.
 const GRID_VERTICAL_MARGIN := 40.0
-const MISMATCH_REVEAL_SECONDS := 0.6
+## Tempo que as 2 cartas erradas ficam à mostra antes de virar de volta. Antes
+## 0,6 s — curto demais pra uma pessoa idosa olhar e memorizar as duas figuras
+## (achado da avaliação heurística).
+const MISMATCH_REVEAL_SECONDS := 1.5
 ## Dica (RF13): as 2 cartas do par ganham uma moldura amarela que pulsa suave
 ## por este tempo, sem mostrar o animal.
 ## Legenda do som do animal (audiodescrição) e partículas do acerto.
@@ -408,6 +411,11 @@ func _on_jogar_novamente_pressed() -> void:
 
 
 func _on_sair_pressed() -> void:
+	# Sair no meio da partida não descarta o progresso: guarda a partida pra
+	# aparecer em "Continuar partida" (antes ela era perdida sem aviso, ou
+	# reaparecia só se o app fosse minimizado depois). Na tela de Parabéns a
+	# partida já terminou (is_running é false) e nada é salvo.
+	SaveManager.autosave_in_progress()
 	get_tree().paused = false
 	pause_overlay.visible = false
 	win_overlay.visible = false

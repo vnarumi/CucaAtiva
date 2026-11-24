@@ -170,3 +170,15 @@ do jogo; legendas que descrevem o som para quem ouve mal.
    o uso do botão Dica e a compreensão do menu de pausa.
 4. Verificar no aparelho os itens marcados como *a verificar* (botão "voltar" do Android, força da
    vibração).
+
+## 7. Correções aplicadas após a avaliação
+
+| Problema | Correção | Situação |
+|---|---|---|
+| P02 — Cartas erradas viravam depressa demais (0,6 s) | O tempo de exibição passou para **1,5 s** (`MISMATCH_REVEAL_SECONDS`) | Corrigido |
+| P07 — "Sair" não encerrava a partida e ela reaparecia só em alguns casos | "Sair" agora **guarda a partida**, que passa a aparecer sempre em "Continuar partida"; na tela de Parabéns nada é salvo | Corrigido |
+| P01 — "Sair" descartava a partida sem aviso | Resolvido para "Sair", pois o progresso passou a ser guardado. **"Reiniciar" continua sem confirmação** | Parcialmente corrigido |
+| Tutorial parado após o exercício (achado do avaliador 1) | O botão **"Entendi!" balança e pulsa** de leve ao completar o exercício, e o texto passa a orientar o próximo passo | Corrigido |
+
+**Pendentes:** P01 (confirmação ao Reiniciar), P03 (progresso "pares encontrados"), P04 (custo da Dica),
+P05 (guardar as configurações), P06 (rever o tutorial) e os problemas cosméticos P08 a P11.
