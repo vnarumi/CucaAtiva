@@ -12,7 +12,7 @@ Os arquivos CC BY exigem atribuição (autor + licença), listada abaixo.
 | leao | [Lion raring-sound1TamilNadu178.ogg](https://commons.wikimedia.org/wiki/File:Lion_raring-sound1TamilNadu178.ogg) | த*உழவன் | Public domain |
 | pombo | [Dove cooing.ogg](https://commons.wikimedia.org/wiki/File:Dove_cooing.ogg) | mary905 | Public domain |
 | cavalo | [Wiehern.ogg](https://commons.wikimedia.org/wiki/File:Wiehern.ogg) | Hü. | Public domain |
-| vaca | [Cow in Vezo.ogg](https://commons.wikimedia.org/wiki/File:Cow_in_Vezo.ogg) | Gasybeaugosse2020 | CC0 |
+| vaca | [Cow - Moo 2 - 96kHz.wav](https://freesound.org/people/JarredGibb/sounds/233129) | JarredGibb | CC0 |
 | ovelha | [Sheep bleat.ogg](https://commons.wikimedia.org/wiki/File:Sheep_bleat.ogg) | Eviatar Bach | CC0 |
 | galinha | [Chickens demanding food.ogg](https://commons.wikimedia.org/wiki/File:Chickens_demanding_food.ogg) | alys | Public domain |
 | porquinho_da_india | [Guinea Pig Happy.ogg](https://commons.wikimedia.org/wiki/File:Guinea_Pig_Happy.ogg) | myself | Public domain |
@@ -22,8 +22,8 @@ Os arquivos CC BY exigem atribuição (autor + licença), listada abaixo.
 
 - `nomes/<animal>.wav` (52 arquivos): o nome de cada animal, falado antes do som.
 - `<animal>.wav` (40 arquivos): para os animais sem gravação real, a descrição do som
-  falada (ex.: "Au, au!"). Se um dia entrar uma gravação real (`.ogg`), ela passa a
+  falada (ex.: "Au, au!"). Se um dia entrar uma gravação real (`.ogg`/`.mp3`), ela passa a
   ser usada no lugar (o jogo procura `.ogg`, depois `.wav`, depois `.mp3`).
-- Gerados localmente com a voz **Microsoft Maria Desktop (pt-BR)** do Windows
-  (System.Speech), taxa -1, 22050 Hz mono, com o silêncio das pontas cortado.
-  Atenção: conferir os termos de uso da Microsoft antes de distribuir o app em loja.
+- Gerados localmente com o **Piper** (https://github.com/OHF-Voice/piper1-gpl) e a voz
+  **pt_BR-faber-medium** (dataset CC0, https://github.com/OHF-Voice/voice-datasets), com
+  `length_scale` 1.12 (um pouco mais devagar) e o silêncio das pontas cortado.
