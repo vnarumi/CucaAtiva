@@ -17,3 +17,13 @@ Os arquivos CC BY exigem atribuição (autor + licença), listada abaixo.
 | galinha | [Chickens demanding food.ogg](https://commons.wikimedia.org/wiki/File:Chickens_demanding_food.ogg) | alys | Public domain |
 | porquinho_da_india | [Guinea Pig Happy.ogg](https://commons.wikimedia.org/wiki/File:Guinea_Pig_Happy.ogg) | myself | Public domain |
 | jacare | [Alligatorbellowedit.ogg](https://commons.wikimedia.org/wiki/File:Alligatorbellowedit.ogg) | Borisblue | Public domain |
+
+## Vozes (nome e descrição falados)
+
+- `nomes/<animal>.wav` (52 arquivos): o nome de cada animal, falado antes do som.
+- `<animal>.wav` (40 arquivos): para os animais sem gravação real, a descrição do som
+  falada (ex.: "Au, au!"). Se um dia entrar uma gravação real (`.ogg`), ela passa a
+  ser usada no lugar (o jogo procura `.ogg`, depois `.wav`, depois `.mp3`).
+- Gerados localmente com a voz **Microsoft Maria Desktop (pt-BR)** do Windows
+  (System.Speech), taxa -1, 22050 Hz mono, com o silêncio das pontas cortado.
+  Atenção: conferir os termos de uso da Microsoft antes de distribuir o app em loja.

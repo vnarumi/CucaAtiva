@@ -17,7 +17,18 @@ const ANIMAL_SOUND_DELAY := 0.25
 ## virar um barulho longo (RNF04).
 const ANIMAL_SOUND_MAX_SECONDS := 3.0
 const ANIMAL_SOUND_FADE_SECONDS := 0.3
+## Nome falado de cada animal, tocado antes do som (voz Maria pt-BR).
+const ANIMAL_NAME_DIR := "res://assets/audio/animals/nomes/"
+const NAME_TO_SOUND_GAP := 0.15
 
+## Emitido quando o nome + o som do animal terminaram de tocar.
+signal animal_sequence_finished
+
+## true enquanto a sequência nome + som de um acerto ainda está tocando.
+var is_animal_playing := false
+
+var _animal_sequence_id := 0
+var _name_streams: Dictionary = {}
 var _sfx_player: AudioStreamPlayer
 var _animal_player: AudioStreamPlayer
 var _animal_streams: Dictionary = {}
@@ -41,18 +52,57 @@ func play_correct() -> void:
 	_sfx_player.play()
 
 
-## Toca o som do animal do ícone (caminho da imagem da carta) depois do tom de
-## acerto. Se não houver arquivo de som para esse animal, não faz nada.
+## Depois do tom de acerto: fala o NOME do animal (voz) e em seguida toca o som
+## dele (gravação real ou, nos animais sem gravação, a descrição falada). Se um
+## novo acerto chegar no meio, a sequência antiga é abandonada.
 func play_animal(icon_path: String) -> void:
-	var stream := _get_animal_stream(icon_path)
-	if stream == null:
+	var name_stream := _get_name_stream(icon_path)
+	var sound_stream := _get_animal_stream(icon_path)
+	if name_stream == null and sound_stream == null:
 		return
+	_animal_sequence_id += 1
+	var my_id := _animal_sequence_id
+	is_animal_playing = true
 	await get_tree().create_timer(ANIMAL_SOUND_DELAY).timeout
+	if my_id != _animal_sequence_id:
+		return
+	if name_stream != null:
+		_play_on_animal_player(name_stream)
+		await get_tree().create_timer(name_stream.get_length() + NAME_TO_SOUND_GAP).timeout
+		if my_id != _animal_sequence_id:
+			return
+	if sound_stream != null:
+		_play_on_animal_player(sound_stream)
+		var length := sound_stream.get_length()
+		if length > ANIMAL_SOUND_MAX_SECONDS:
+			_cut_animal_sound()
+			length = ANIMAL_SOUND_MAX_SECONDS
+		await get_tree().create_timer(length).timeout
+		if my_id != _animal_sequence_id:
+			return
+	is_animal_playing = false
+	animal_sequence_finished.emit()
+
+
+func _play_on_animal_player(stream: AudioStream) -> void:
 	_animal_player.stream = stream
 	_animal_player.volume_db = 0.0
 	_animal_player.play()
-	if stream.get_length() > ANIMAL_SOUND_MAX_SECONDS:
-		_cut_animal_sound()
+
+
+## Nome falado do animal (assets/audio/animals/nomes/<animal>.wav), ou null.
+func _get_name_stream(icon_path: String) -> AudioStream:
+	var animal := icon_path.get_file().get_basename()
+	if _name_streams.has(animal):
+		return _name_streams[animal]
+	var stream: AudioStream = null
+	for ext in ANIMAL_SOUND_EXTENSIONS:
+		var path: String = ANIMAL_NAME_DIR + animal + "." + ext
+		if ResourceLoader.exists(path):
+			stream = load(path)
+			break
+	_name_streams[animal] = stream
+	return stream
 
 
 ## Corta o som atual depois de ANIMAL_SOUND_MAX_SECONDS com um fade-out curto.

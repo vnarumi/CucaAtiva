@@ -16,7 +16,7 @@ const MISMATCH_REVEAL_SECONDS := 0.6
 ## por este tempo, sem mostrar o animal.
 ## Legenda do som do animal (audiodescrição) e partículas do acerto.
 const CAPTION_FADE_SECONDS := 0.25
-const CAPTION_HOLD_SECONDS := 2.6
+const CAPTION_MIN_HOLD_SECONDS := 2.5
 ## Tempo entre o último par e a tela de Parabéns (dá pra ver/ouvir o acerto).
 const WIN_SCREEN_DELAY_SECONDS := 3.2
 const PARTICLE_COUNT := 14
@@ -54,6 +54,7 @@ var _icons: Array[TextureRect] = []
 var _backs: Array[TextureRect] = []
 var _frames: Array[Panel] = []
 var _caption_tween: Tween
+var _caption_id := 0
 var _sparkle_texture: GradientTexture2D
 var _hint_tween: Tween
 var _hint_indices: Array[int] = []
@@ -274,6 +275,8 @@ func _show_sound_caption(parts: Array) -> void:
 	caption_sound.text = parts[1]
 	if _caption_tween != null and _caption_tween.is_valid():
 		_caption_tween.kill()
+	_caption_id += 1
+	var my_id := _caption_id
 	# A etiqueta "estoura" de leve ao aparecer (pop), pra chamar a atenção.
 	caption_pill.pivot_offset = caption_pill.size / 2.0
 	caption_pill.scale = Vector2.ONE * 0.85
@@ -282,8 +285,16 @@ func _show_sound_caption(parts: Array) -> void:
 	_caption_tween.set_parallel(true)
 	_caption_tween.tween_property(sound_caption, "modulate:a", 1.0, CAPTION_FADE_SECONDS)
 	_caption_tween.tween_property(caption_pill, "scale", Vector2.ONE, CAPTION_FADE_SECONDS * 1.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_caption_tween.chain().tween_interval(CAPTION_HOLD_SECONDS)
-	_caption_tween.chain().tween_property(sound_caption, "modulate:a", 0.0, CAPTION_FADE_SECONDS)
+	# Fica na tela até o nome e o som do animal terminarem (no mínimo um tempo).
+	await get_tree().create_timer(CAPTION_MIN_HOLD_SECONDS).timeout
+	if my_id != _caption_id:
+		return
+	if AudioManager.is_animal_playing:
+		await AudioManager.animal_sequence_finished
+		if my_id != _caption_id:
+			return
+	_caption_tween = create_tween()
+	_caption_tween.tween_property(sound_caption, "modulate:a", 0.0, CAPTION_FADE_SECONDS)
 
 
 func _on_match_failed() -> void:
@@ -314,6 +325,9 @@ func _on_game_won() -> void:
 	# Espera um pouco pra o jogador ver a dança, as partículas e a legenda do
 	# último par (e ouvir o som do animal) antes da tela de Parabéns.
 	await get_tree().create_timer(WIN_SCREEN_DELAY_SECONDS).timeout
+	# Se o nome/som do animal ainda estiver tocando, espera terminar.
+	if AudioManager.is_animal_playing:
+		await AudioManager.animal_sequence_finished
 	if not is_inside_tree():
 		return
 	win_overlay.visible = true
@@ -338,6 +352,7 @@ func _on_continuar_pressed() -> void:
 ## novamente" da tela de Parabéns.
 func _restart_game() -> void:
 	GameManager.restart()
+	_caption_id += 1
 	if _caption_tween != null and _caption_tween.is_valid():
 		_caption_tween.kill()
 	sound_caption.modulate.a = 0.0
