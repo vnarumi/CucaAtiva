@@ -14,6 +14,18 @@ const PAIR_IDS := [0, 0, 1, 1]
 const CARD_BACK_TEXTURE := preload("res://assets/icons/cards/verso.svg")
 
 @onready var grid: GridContainer = $Layout/CardGrid
+@onready var instruction_label: Label = $Layout/InstructionCard/InstructionLabel
+@onready var _entendi_wrapper: Control = $Layout/EntendiWrapper
+
+## Texto que substitui a instrução quando o exercício termina.
+const INSTRUCTION_DONE := "Muito bem! Agora toque em “Entendi!” para começar a jogar."
+## Destaque do botão "Entendi!": balanço suave, ~1,4 s por ciclo, nunca piscante.
+const ENTENDI_PULSE_SCALE := 1.08
+const ENTENDI_WOBBLE_DEGREES := 3.0
+const ENTENDI_STEP_SECONDS := 0.18
+const ENTENDI_PAUSE_SECONDS := 0.9
+
+var _entendi_tween: Tween
 
 var _buttons: Array[Button] = []
 var _backs: Array[TextureRect] = []
@@ -112,6 +124,7 @@ func _on_card_pressed(index: int) -> void:
 		_pop_correct(_buttons[b])
 		_pending_indices.clear()
 		if _matched.size() == _values.size():
+			_highlight_entendi()
 			await get_tree().create_timer(RESHUFFLE_DELAY_SECONDS + 0.8).timeout
 			_build_grid()
 	else:
@@ -121,6 +134,25 @@ func _on_card_pressed(index: int) -> void:
 		_hide(a)
 		_hide(b)
 		_pending_indices.clear()
+
+
+## Quando a pessoa completa o exercício, o botão "Entendi!" balança e pulsa de
+## leve (sem piscar) e o texto de cima diz o que fazer em seguida — antes a tela
+## ficava parada e não ficava claro que o tutorial já tinha acabado.
+func _highlight_entendi() -> void:
+	if _entendi_tween != null and _entendi_tween.is_valid():
+		return  # já está em destaque
+	instruction_label.text = INSTRUCTION_DONE
+	_fit_instruction_card()
+	_entendi_wrapper.pivot_offset = _entendi_wrapper.size / 2.0
+	_entendi_tween = create_tween().set_loops()
+	_entendi_tween.set_parallel(true)
+	_entendi_tween.tween_property(_entendi_wrapper, "scale", Vector2.ONE * ENTENDI_PULSE_SCALE, ENTENDI_STEP_SECONDS)
+	_entendi_tween.tween_property(_entendi_wrapper, "rotation_degrees", -ENTENDI_WOBBLE_DEGREES, ENTENDI_STEP_SECONDS)
+	_entendi_tween.chain().tween_property(_entendi_wrapper, "rotation_degrees", ENTENDI_WOBBLE_DEGREES, ENTENDI_STEP_SECONDS)
+	_entendi_tween.chain().tween_property(_entendi_wrapper, "scale", Vector2.ONE, ENTENDI_STEP_SECONDS)
+	_entendi_tween.parallel().tween_property(_entendi_wrapper, "rotation_degrees", 0.0, ENTENDI_STEP_SECONDS)
+	_entendi_tween.chain().tween_interval(ENTENDI_PAUSE_SECONDS)
 
 
 ## Mesma "dancinha" suave do acerto no tabuleiro.
