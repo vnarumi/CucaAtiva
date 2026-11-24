@@ -48,6 +48,7 @@ const CARD_BACK_TEXTURE := preload("res://assets/icons/cards/verso.svg")
 @onready var win_overlay: Control = $WinOverlay
 @onready var win_score_label: Label = $WinOverlay/Layout/ScoreLabel
 @onready var win_time_label: Label = $WinOverlay/Layout/TimeLabel
+@onready var win_rank_label: Label = $WinOverlay/Layout/RankLabel
 
 var _buttons: Array[Button] = []
 var _icons: Array[TextureRect] = []
@@ -322,6 +323,9 @@ func _on_game_won() -> void:
 	_set_image_button_enabled(dica_button, false)
 	win_score_label.text = "Pontuação: %d" % GameManager.score
 	win_time_label.text = "Tempo: %s" % TimeFormat.mmss(GameManager.elapsed_seconds)
+	# Posição no ranking do nível (SaveManager já gravou esta vitória no histórico).
+	var pos := GameRanking.position(SaveManager.history, GameManager.difficulty, GameManager.score, GameManager.elapsed_seconds)
+	win_rank_label.text = GameRanking.message(pos["rank"], pos["total"], GameManager.difficulty)
 	# Espera um pouco pra o jogador ver a dança, as partículas e a legenda do
 	# último par (e ouvir o som do animal) antes da tela de Parabéns.
 	await get_tree().create_timer(WIN_SCREEN_DELAY_SECONDS).timeout
