@@ -26,4 +26,4 @@ Os arquivos CC BY exigem atribuição (autor + licença), listada abaixo.
   ser usada no lugar (o jogo procura `.ogg`, depois `.wav`, depois `.mp3`).
 - Gerados localmente com o **Piper** (https://github.com/OHF-Voice/piper1-gpl) e a voz
   **pt_BR-faber-medium** (dataset CC0, https://github.com/OHF-Voice/voice-datasets), com
-  `length_scale` 1.12 (um pouco mais devagar) e o silêncio das pontas cortado.
+  `length_scale` 1.6 nos nomes e 1.3 nos sons (bem devagar, para o público idoso) e o silêncio das pontas cortado.

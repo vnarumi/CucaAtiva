@@ -19,7 +19,7 @@ const ANIMAL_SOUND_MAX_SECONDS := 3.0
 const ANIMAL_SOUND_FADE_SECONDS := 0.3
 ## Nome falado de cada animal, tocado antes do som (voz Maria pt-BR).
 const ANIMAL_NAME_DIR := "res://assets/audio/animals/nomes/"
-const NAME_TO_SOUND_GAP := 0.15
+const NAME_TO_SOUND_GAP := 0.35
 
 ## Emitido quando o nome + o som do animal terminaram de tocar.
 signal animal_sequence_finished
