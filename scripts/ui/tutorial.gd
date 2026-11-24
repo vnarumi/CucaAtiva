@@ -25,6 +25,17 @@ var _matched: Array[int] = []
 
 func _ready() -> void:
 	_build_grid()
+	_fit_instruction_card()
+
+
+## Com a letra grande a instrução ocupa mais linhas: o cartão cresce pra caber
+## o texto inteiro (senão ele vazaria pra fora do cartão).
+func _fit_instruction_card() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var card: Control = $Layout/InstructionCard
+	var label: Label = $Layout/InstructionCard/InstructionLabel
+	card.custom_minimum_size.y = max(card.custom_minimum_size.y, label.get_combined_minimum_size().y + 40.0)
 
 
 func _build_grid() -> void:

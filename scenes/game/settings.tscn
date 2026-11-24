@@ -33,7 +33,7 @@ corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
 
-[node name="Settings" type="Control" unique_id=499709253]
+[node name="Settings" type="Control" unique_id=499709253 groups=["fixed_font_scene"]]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0

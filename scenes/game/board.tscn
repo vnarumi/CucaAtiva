@@ -115,14 +115,14 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="NameLabel" type="Label" parent="VBoxContainer/SoundCaption/Pill/TextBox"]
+[node name="NameLabel" type="Label" parent="VBoxContainer/SoundCaption/Pill/TextBox" groups=["capped_font"]]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.043137256, 0.16078432, 0.4509804, 1)
 theme_override_fonts/font = ExtResource("3_63l6i")
 theme_override_font_sizes/font_size = 32
 horizontal_alignment = 1
 
-[node name="SoundLabel" type="Label" parent="VBoxContainer/SoundCaption/Pill/TextBox"]
+[node name="SoundLabel" type="Label" parent="VBoxContainer/SoundCaption/Pill/TextBox" groups=["capped_font"]]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.043137256, 0.16078432, 0.4509804, 1)
 theme_override_fonts/font = ExtResource("3_63l6i")
@@ -173,7 +173,7 @@ texture = ExtResource("3_ea46o")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Count" type="Label" parent="VBoxContainer/Footer/DicaButton" unique_id=1071313053]
+[node name="Count" type="Label" parent="VBoxContainer/Footer/DicaButton" unique_id=1071313053 groups=["fixed_font"]]
 layout_mode = 0
 anchor_top = 0.6
 anchor_right = 1.0
@@ -184,7 +184,7 @@ text = "3"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DicaText" type="Label" parent="VBoxContainer/Footer/DicaButton" unique_id=16935674]
+[node name="DicaText" type="Label" parent="VBoxContainer/Footer/DicaButton" unique_id=16935674 groups=["fixed_font"]]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0

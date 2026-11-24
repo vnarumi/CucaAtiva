@@ -17,6 +17,10 @@ const MISMATCH_REVEAL_SECONDS := 0.6
 ## Legenda do som do animal (audiodescrição) e partículas do acerto.
 const CAPTION_FADE_SECONDS := 0.25
 const CAPTION_MIN_HOLD_SECONDS := 2.5
+## Margem interna da etiqueta (bordas + espaço) e menores tamanhos de letra.
+const CAPTION_TEXT_MARGIN := 64.0
+const CAPTION_MIN_FONT_NAME := 22
+const CAPTION_MIN_FONT_SOUND := 18
 ## Tempo entre o último par e a tela de Parabéns (dá pra ver/ouvir o acerto).
 const WIN_SCREEN_DELAY_SECONDS := 3.2
 const PARTICLE_COUNT := 14
@@ -271,12 +275,27 @@ func _on_match_found(pair_id: int) -> void:
 	_refresh_dica_button()
 
 
+## Volta o texto ao tamanho escalado e o encolhe (de 2 em 2) até caber em
+## `avail_w`, sem passar de `min_size` (nunca abaixo de 18sp, RNF02).
+func _fit_label_font(label: Label, avail_w: float, min_size: int) -> void:
+	SettingsManager.reapply_font_scale(label)
+	var font := label.get_theme_font("font")
+	var size := label.get_theme_font_size("font_size")
+	while size > min_size and font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x > avail_w:
+		size -= 2
+	label.add_theme_font_size_override("font_size", size)
+
+
 ## Legenda do som do animal (audiodescrição): aparece, fica um tempo e some.
 func _show_sound_caption(parts: Array) -> void:
 	if parts.is_empty():
 		return
 	caption_name.text = parts[0]
 	caption_sound.text = parts[1]
+	# Com letra grande, nomes/sons compridos encolhem só o bastante pra caber.
+	var avail_w := caption_pill.size.x - CAPTION_TEXT_MARGIN
+	_fit_label_font(caption_name, avail_w, CAPTION_MIN_FONT_NAME)
+	_fit_label_font(caption_sound, avail_w, CAPTION_MIN_FONT_SOUND)
 	if _caption_tween != null and _caption_tween.is_valid():
 		_caption_tween.kill()
 	_caption_id += 1

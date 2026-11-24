@@ -95,7 +95,7 @@ theme_override_constants/separation = 10
 [node name="HeaderRow" type="HBoxContainer" parent="Layout/CardWrapper/CardPanel/CardMargin/CardVBox" unique_id=1000000005]
 layout_mode = 2
 
-[node name="PontosHeader" type="Label" parent="Layout/CardWrapper/CardPanel/CardMargin/CardVBox/HeaderRow" unique_id=1000000006]
+[node name="PontosHeader" type="Label" parent="Layout/CardWrapper/CardPanel/CardMargin/CardVBox/HeaderRow" unique_id=1000000006 groups=["fixed_font"]]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -104,7 +104,7 @@ theme_override_font_sizes/font_size = 24
 text = "PONTOS"
 horizontal_alignment = 1
 
-[node name="TempoHeader" type="Label" parent="Layout/CardWrapper/CardPanel/CardMargin/CardVBox/HeaderRow" unique_id=1000000007]
+[node name="TempoHeader" type="Label" parent="Layout/CardWrapper/CardPanel/CardMargin/CardVBox/HeaderRow" unique_id=1000000007 groups=["fixed_font"]]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -113,7 +113,7 @@ theme_override_font_sizes/font_size = 24
 text = "TEMPO"
 horizontal_alignment = 1
 
-[node name="LugarHeader" type="Label" parent="Layout/CardWrapper/CardPanel/CardMargin/CardVBox/HeaderRow"]
+[node name="LugarHeader" type="Label" parent="Layout/CardWrapper/CardPanel/CardMargin/CardVBox/HeaderRow" groups=["fixed_font"]]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -159,7 +159,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 theme_type_variation = &"HaloRectPanel"
 
-[node name="VoltarButton" type="Button" parent="Layout/VoltarWrapper" unique_id=1516434690]
+[node name="VoltarButton" type="Button" parent="Layout/VoltarWrapper" unique_id=1516434690 groups=["capped_font"]]
 custom_minimum_size = Vector2(204, 80)
 layout_mode = 0
 anchor_left = 0.5

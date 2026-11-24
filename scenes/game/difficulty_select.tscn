@@ -151,7 +151,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 theme_type_variation = &"HaloRectPanel"
 
-[node name="VoltarButton" type="Button" parent="Layout/VoltarRow/VoltarWrapper" unique_id=199977567]
+[node name="VoltarButton" type="Button" parent="Layout/VoltarRow/VoltarWrapper" unique_id=199977567 groups=["capped_font"]]
 custom_minimum_size = Vector2(204, 80)
 layout_mode = 0
 anchor_left = 0.5
