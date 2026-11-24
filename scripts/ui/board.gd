@@ -12,7 +12,12 @@ const GRID_SIDE_MARGIN := 32.0
 ## Margem do topo (offset_top do VBoxContainer) + folga.
 const GRID_VERTICAL_MARGIN := 40.0
 const MISMATCH_REVEAL_SECONDS := 0.6
-const HINT_REVEAL_SECONDS := 1.5
+## Dica (RF13): as 2 cartas do par ganham uma moldura amarela que pulsa suave
+## por este tempo, sem mostrar o animal.
+const HINT_HIGHLIGHT_SECONDS := 2.5
+const HINT_FRAME_COLOR := Color("FFD23F")
+const HINT_FRAME_WIDTH := 8
+const HINT_PULSE_SECONDS := 0.6
 const PRESS_SCALE := 0.92
 const PRESS_ANIM_SECONDS := 0.08
 const DISABLED_MODULATE := Color(1, 1, 1, 0.5)
@@ -32,6 +37,8 @@ const CARD_BACK_TEXTURE := preload("res://assets/icons/cards/verso.svg")
 var _buttons: Array[Button] = []
 var _icons: Array[TextureRect] = []
 var _backs: Array[TextureRect] = []
+var _frames: Array[Panel] = []
+var _hint_tween: Tween
 var _pending_indices: Array[int] = []
 
 
@@ -83,6 +90,8 @@ func _build_grid() -> void:
 	_buttons.clear()
 	_icons.clear()
 	_backs.clear()
+	_frames.clear()
+	_clear_hint()
 	_pending_indices.clear()
 	var columns := _columns_for(GameManager.board.size())
 	grid.columns = columns
@@ -116,6 +125,18 @@ func _build_grid() -> void:
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		icon.visible = false
 		btn.add_child(icon)
+		var frame := Panel.new()
+		var frame_style := StyleBoxFlat.new()
+		frame_style.bg_color = Color(0, 0, 0, 0)
+		frame_style.border_color = HINT_FRAME_COLOR
+		frame_style.set_border_width_all(HINT_FRAME_WIDTH)
+		frame_style.set_corner_radius_all(8)
+		frame.add_theme_stylebox_override("panel", frame_style)
+		frame.anchor_right = 1.0
+		frame.anchor_bottom = 1.0
+		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame.visible = false
+		btn.add_child(frame)
 		if GameManager.matched.has(i):
 			btn.disabled = true
 			back.visible = false
@@ -125,6 +146,7 @@ func _build_grid() -> void:
 		_buttons.append(btn)
 		_icons.append(icon)
 		_backs.append(back)
+		_frames.append(frame)
 
 
 ## O lado da carta é o menor entre o que cabe na largura e o que cabe na altura
@@ -167,6 +189,7 @@ func _columns_for(card_count: int) -> int:
 func _reveal_card(index: int) -> void:
 	_backs[index].visible = false
 	_icons[index].visible = true
+	_frames[index].visible = false
 
 
 func _hide_card(index: int) -> void:
@@ -277,14 +300,34 @@ func _on_dica_pressed() -> void:
 	if pair.is_empty():
 		return
 	_refresh_dica_button()
+	_clear_hint()
+	var frames: Array[Panel] = []
 	for i in pair:
-		_reveal_card(i)
-	await get_tree().create_timer(HINT_REVEAL_SECONDS).timeout
-	for i in pair:
-		# Só esconde de novo se o jogador não tiver virado essa carta "pra
-		# valer" nesse meio-tempo (aí ela já está pendente/resolvida).
-		if not GameManager.matched.has(i) and not _pending_indices.has(i):
-			_hide_card(i)
+		_frames[i].visible = true
+		_frames[i].modulate.a = 1.0
+		frames.append(_frames[i])
+	# Pulsa de leve (só a opacidade da moldura, sem piscar forte).
+	_hint_tween = create_tween().set_loops()
+	for f in frames:
+		_hint_tween.parallel().tween_property(f, "modulate:a", 0.45, HINT_PULSE_SECONDS)
+	_hint_tween.chain()
+	for f in frames:
+		_hint_tween.parallel().tween_property(f, "modulate:a", 1.0, HINT_PULSE_SECONDS)
+	await get_tree().create_timer(HINT_HIGHLIGHT_SECONDS).timeout
+	for f in frames:
+		if is_instance_valid(f):
+			f.visible = false
+	if _hint_tween != null and _hint_tween.is_valid():
+		_hint_tween.kill()
+
+
+## Apaga qualquer destaque de Dica em andamento.
+func _clear_hint() -> void:
+	if _hint_tween != null and _hint_tween.is_valid():
+		_hint_tween.kill()
+	for f in _frames:
+		if is_instance_valid(f):
+			f.visible = false
 
 
 func _refresh_dica_button() -> void:
