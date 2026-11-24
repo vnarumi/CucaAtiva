@@ -36,6 +36,17 @@ func test_photos_live_in_the_folder_of_their_level() -> void:
 			assert_true(path.contains("/%s/" % level), "%s deveria estar na pasta %s" % [path, level])
 
 
+func test_every_animal_has_a_caption() -> void:
+	for level in LEVELS:
+		for path in MemoryCardIcons.pool_for(level):
+			assert_true(AnimalInfo.caption(path) != "", "Animal sem legenda de som: %s" % path)
+
+
+func test_caption_has_name_and_sound() -> void:
+	assert_eq(AnimalInfo.caption("res://assets/icons/cards/facil/vaca.jpg"), "Vaca – Muuu!")
+	assert_eq(AnimalInfo.caption("res://assets/icons/cards/facil/inexistente.jpg"), "")
+
+
 func test_pick_returns_requested_count() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1

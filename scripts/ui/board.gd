@@ -14,6 +14,12 @@ const GRID_VERTICAL_MARGIN := 40.0
 const MISMATCH_REVEAL_SECONDS := 0.6
 ## Dica (RF13): as 2 cartas do par ganham uma moldura amarela que pulsa suave
 ## por este tempo, sem mostrar o animal.
+## Legenda do som do animal (audiodescrição) e partículas do acerto.
+const CAPTION_FADE_SECONDS := 0.25
+const CAPTION_HOLD_SECONDS := 2.6
+const PARTICLE_COUNT := 14
+const PARTICLE_LIFETIME := 1.1
+
 const HINT_HIGHLIGHT_SECONDS := 2.5
 const HINT_FRAME_COLOR := Color("FFD23F")
 const HINT_FRAME_WIDTH := 8
@@ -32,6 +38,7 @@ const CARD_BACK_TEXTURE := preload("res://assets/icons/cards/verso.svg")
 @onready var pausa_button: Button = $VBoxContainer/Footer/PausaButton
 @onready var dica_button: Button = $VBoxContainer/Footer/DicaButton
 @onready var dica_count_label: Label = $VBoxContainer/Footer/DicaButton/Count
+@onready var sound_caption: Label = $VBoxContainer/SoundCaption
 @onready var pause_overlay: Control = $PauseOverlay
 @onready var win_overlay: Control = $WinOverlay
 @onready var win_score_label: Label = $WinOverlay/Layout/ScoreLabel
@@ -41,6 +48,8 @@ var _buttons: Array[Button] = []
 var _icons: Array[TextureRect] = []
 var _backs: Array[TextureRect] = []
 var _frames: Array[Panel] = []
+var _caption_tween: Tween
+var _sparkle_texture: GradientTexture2D
 var _hint_tween: Tween
 var _hint_indices: Array[int] = []
 var _hint_id := 0
@@ -48,6 +57,7 @@ var _pending_indices: Array[int] = []
 
 
 func _ready() -> void:
+	_sparkle_texture = _make_sparkle_texture()
 	GameManager.score_changed.connect(_on_score_changed)
 	GameManager.match_found.connect(_on_match_found)
 	GameManager.match_failed.connect(_on_match_failed)
@@ -62,6 +72,21 @@ func _ready() -> void:
 	_build_grid()
 	_on_score_changed(GameManager.score)
 	_refresh_dica_button()
+
+
+## Bolinha de brilho (centro branco que some nas bordas) usada nas partículas.
+func _make_sparkle_texture() -> GradientTexture2D:
+	var g := Gradient.new()
+	g.set_color(0, Color(1, 1, 1, 1))
+	g.set_color(1, Color(1, 1, 1, 0))
+	var t := GradientTexture2D.new()
+	t.gradient = g
+	t.fill = GradientTexture2D.FILL_RADIAL
+	t.fill_from = Vector2(0.5, 0.5)
+	t.fill_to = Vector2(1.0, 0.5)
+	t.width = 24
+	t.height = 24
+	return t
 
 
 ## Botões de ícone completo (imagem única exportada do Figma, sombra/halo já
@@ -225,12 +250,29 @@ func _on_card_pressed(index: int) -> void:
 func _on_match_found(pair_id: int) -> void:
 	AudioManager.play_correct()
 	if pair_id >= 0 and pair_id < GameManager.card_icons.size():
-		AudioManager.play_animal(GameManager.card_icons[pair_id])
+		var icon_path: String = GameManager.card_icons[pair_id]
+		AudioManager.play_animal(icon_path)
+		_show_sound_caption(AnimalInfo.caption(icon_path))
 	for i in _pending_indices:
 		_buttons[i].disabled = true
-		_pop_correct(_buttons[i])
+		_dance_correct(_buttons[i])
+		_burst_particles(_buttons[i])
 	_pending_indices.clear()
 	_refresh_dica_button()
+
+
+## Legenda do som do animal (audiodescrição): aparece, fica um tempo e some.
+func _show_sound_caption(text: String) -> void:
+	if text.is_empty():
+		return
+	sound_caption.text = text
+	if _caption_tween != null and _caption_tween.is_valid():
+		_caption_tween.kill()
+	sound_caption.modulate.a = 0.0
+	_caption_tween = create_tween()
+	_caption_tween.tween_property(sound_caption, "modulate:a", 1.0, CAPTION_FADE_SECONDS)
+	_caption_tween.tween_interval(CAPTION_HOLD_SECONDS)
+	_caption_tween.tween_property(sound_caption, "modulate:a", 0.0, CAPTION_FADE_SECONDS)
 
 
 func _on_match_failed() -> void:
@@ -280,6 +322,9 @@ func _on_continuar_pressed() -> void:
 ## novamente" da tela de Parabéns.
 func _restart_game() -> void:
 	GameManager.restart()
+	if _caption_tween != null and _caption_tween.is_valid():
+		_caption_tween.kill()
+	sound_caption.modulate.a = 0.0
 	_build_grid()
 	_on_score_changed(GameManager.score)
 	_set_image_button_enabled(pausa_button, true)
@@ -355,17 +400,48 @@ func _refresh_dica_button() -> void:
 	_set_image_button_enabled(dica_button, GameManager.can_use_hint())
 
 
-## Feedback visual de acerto (RF03): um "pop" curto e suave, sem piscar.
-func _pop_correct(btn: Button) -> void:
+## Feedback visual de acerto (RF03): a carta dá um pulinho e "dança" de um
+## lado pro outro, devagar e sem piscar.
+func _dance_correct(btn: Button) -> void:
 	var tween := create_tween()
-	tween.tween_property(btn, "scale", Vector2(1.15, 1.15), 0.12)
-	tween.tween_property(btn, "scale", Vector2.ONE, 0.12)
+	tween.tween_property(btn, "scale", Vector2.ONE * 1.18, 0.14)
+	for angle in [-8.0, 8.0, -6.0, 6.0, -3.0, 3.0, 0.0]:
+		tween.tween_property(btn, "rotation_degrees", angle, 0.09)
+	tween.tween_property(btn, "scale", Vector2.ONE, 0.16)
+
+
+## Partículas douradas que sobem devagar a partir da carta (só no acerto).
+func _burst_particles(btn: Button) -> void:
+	var p := CPUParticles2D.new()
+	p.texture = _sparkle_texture
+	p.one_shot = true
+	p.explosiveness = 0.85
+	p.amount = PARTICLE_COUNT
+	p.lifetime = PARTICLE_LIFETIME
+	p.direction = Vector2(0, -1)
+	p.spread = 110.0
+	p.initial_velocity_min = 50.0
+	p.initial_velocity_max = 110.0
+	p.gravity = Vector2(0, -30)
+	p.scale_amount_min = 0.5
+	p.scale_amount_max = 1.1
+	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_SPHERE
+	p.emission_sphere_radius = btn.size.x * 0.35
+	var fade := Gradient.new()
+	fade.set_color(0, Color(1, 1, 1, 1))
+	fade.set_color(1, Color(1, 1, 1, 0))
+	p.color_ramp = fade
+	p.color = Color("FFD23F")
+	p.z_index = 10
+	add_child(p)
+	p.global_position = btn.global_position + btn.size / 2.0
+	p.emitting = true
+	get_tree().create_timer(PARTICLE_LIFETIME + 0.3).timeout.connect(p.queue_free)
 
 
 ## Feedback visual de erro (RF03): um leve balanço, não punitivo (RNF04) —
 ## nada de flash vermelho nem tremor de tela inteira.
 func _wobble_incorrect(btn: Button) -> void:
 	var tween := create_tween()
-	tween.tween_property(btn, "rotation_degrees", -6.0, 0.06)
-	tween.tween_property(btn, "rotation_degrees", 6.0, 0.06)
-	tween.tween_property(btn, "rotation_degrees", 0.0, 0.06)
+	for angle in [-7.0, 7.0, -5.0, 5.0, 0.0]:
+		tween.tween_property(btn, "rotation_degrees", angle, 0.07)
