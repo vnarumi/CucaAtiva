@@ -7,6 +7,7 @@ extends Control
 
 const ROW_FONT := preload("res://assets/fonts/FredokaOne-Regular.ttf")
 const ROW_FONT_SIZE := 28
+const LEVEL_FONT_SIZE := 18
 const DIVIDER_COLOR := Color(0, 0, 0, 1)
 
 @onready var scroll: ScrollContainer = $Layout/CardWrapper/CardPanel/CardMargin/CardVBox/ScrollContainer
@@ -29,14 +30,20 @@ func _populate() -> void:
 	for i in range(entries.size() - 1, -1, -1):
 		var entry: Dictionary = entries[i]
 		var score: int = int(entry.get("score", 0))
-		var time_str := TimeFormat.mmss(float(entry.get("time_seconds", 0.0)))
-		_add_row(str(score), time_str)
+		var seconds: float = float(entry.get("time_seconds", 0.0))
+		var difficulty: String = str(entry.get("difficulty", ""))
+		var time_str := TimeFormat.mmss(seconds)
+		# Posição da partida no ranking do nível dela (pontos; empate = mais rápido).
+		var pos := GameRanking.position(entries, difficulty, score, seconds)
+		var level: String = GameRanking.LEVEL_NAMES.get(difficulty, "")
+		_add_row(str(score), time_str, "%dº" % pos["rank"], level)
 
 
-func _add_row(pontos_text: String, tempo_text: String) -> void:
+func _add_row(pontos_text: String, tempo_text: String, lugar_text: String, nivel_text: String) -> void:
 	var row := HBoxContainer.new()
 	row.add_child(_make_cell(pontos_text))
 	row.add_child(_make_cell(tempo_text))
+	row.add_child(_make_lugar_cell(lugar_text, nivel_text))
 	list_container.add_child(row)
 	var divider := ColorRect.new()
 	divider.custom_minimum_size = Vector2(0, 2)
@@ -53,6 +60,19 @@ func _make_cell(text: String) -> Label:
 	label.add_theme_font_size_override("font_size", ROW_FONT_SIZE)
 	label.add_theme_color_override("font_color", Color(0, 0, 0, 1))
 	return label
+
+
+## Coluna LUGAR: a posição (ex.: "3º") e, embaixo, o nível a que ela se refere.
+func _make_lugar_cell(lugar_text: String, nivel_text: String) -> Control:
+	var box := VBoxContainer.new()
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_theme_constant_override("separation", -4)
+	box.add_child(_make_cell(lugar_text))
+	if not nivel_text.is_empty():
+		var level_label := _make_cell(nivel_text)
+		level_label.add_theme_font_size_override("font_size", LEVEL_FONT_SIZE)
+		box.add_child(level_label)
+	return box
 
 
 func _on_voltar_pressed() -> void:

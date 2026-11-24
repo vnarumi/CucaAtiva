@@ -100,7 +100,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("3_font")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 24
 text = "PONTOS"
 horizontal_alignment = 1
 
@@ -109,8 +109,17 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("3_font")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 24
 text = "TEMPO"
+horizontal_alignment = 1
+
+[node name="LugarHeader" type="Label" parent="Layout/CardWrapper/CardPanel/CardMargin/CardVBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 24
+text = "LUGAR"
 horizontal_alignment = 1
 
 [node name="HeaderDivider" type="ColorRect" parent="Layout/CardWrapper/CardPanel/CardMargin/CardVBox" unique_id=1000000008]
