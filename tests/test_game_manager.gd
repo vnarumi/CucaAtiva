@@ -137,6 +137,24 @@ func test_restore_state_round_trip_with_string_keyed_matched() -> void:
 	assert_true(gm.is_running, "Ainda restam pares (1 de 15 no médio) — deve continuar rodando")
 
 
+## Regressão: ao retomar a partida na MESMA sessão (Sair -> Continuar partida,
+## sem reler o disco), o estado salvo compartilhava o mesmo dicionário de
+## `matched` do GameManager; restore_state o limpava e as cartas acertadas
+## sumiam (tabuleiro todo virado pra baixo).
+func test_restore_state_keeps_matched_when_state_shares_the_live_dictionary() -> void:
+	var gm := _new_manager()
+	gm.board = [0, 1, 2, 0, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+	gm.matched[0] = true
+	gm.matched[3] = true
+	gm.pairs_found = 1
+	# o "salvo" aponta pro MESMO dicionário (como um autosave sem cópia)
+	var saved := {"difficulty": "facil", "board": gm.board, "matched": gm.matched, "pairs_found": 1}
+	gm.restore_state(saved)
+	assert_true(gm.matched.has(0), "Carta 0 deve continuar acertada")
+	assert_true(gm.matched.has(3), "Carta 3 deve continuar acertada")
+	assert_eq(gm.matched.size(), 2)
+
+
 func test_hint_requires_minimum_score() -> void:
 	var gm := _new_manager()
 	gm.score = 14

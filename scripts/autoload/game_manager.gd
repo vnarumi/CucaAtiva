@@ -91,8 +91,11 @@ func restore_state(state: Dictionary) -> void:
 	hints_used = int(state.get("hints_used", 0))
 	pairs_found = int(state.get("pairs_found", 0))
 	elapsed_seconds = float(state.get("elapsed_seconds", 0.0))
+	# Copia as chaves ANTES de limpar: `state` pode compartilhar o mesmo
+	# dicionário de `matched` (retomar na mesma sessão, sem reler o disco).
+	var saved_matched: Array = state.get("matched", {}).keys()
 	matched.clear()
-	for k in state.get("matched", {}).keys():
+	for k in saved_matched:
 		matched[int(k)] = true
 	_flipped.clear()
 	var total_pairs := BoardGenerator.pairs_for_difficulty(difficulty)

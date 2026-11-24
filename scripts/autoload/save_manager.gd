@@ -90,14 +90,17 @@ func add_history_entry(difficulty: String, score: int, time_seconds: float) -> v
 func autosave_in_progress() -> void:
 	if GameManager.difficulty == "" or not GameManager.is_running:
 		return
+	# Cópias (duplicate), não referências: senão `in_progress` e o estado vivo do
+	# GameManager compartilhariam a mesma lista/dicionário, e retomar a partida
+	# (que limpa o estado vivo) apagaria também o que acabou de ser salvo.
 	in_progress = {
 		"difficulty": GameManager.difficulty,
-		"board": GameManager.board,
-		"card_icons": GameManager.card_icons,
+		"board": GameManager.board.duplicate(),
+		"card_icons": GameManager.card_icons.duplicate(),
 		"score": GameManager.score,
 		"combo_streak": GameManager.combo_streak,
 		"hints_used": GameManager.hints_used,
-		"matched": GameManager.matched,
+		"matched": GameManager.matched.duplicate(),
 		"pairs_found": GameManager.pairs_found,
 		"elapsed_seconds": GameManager.elapsed_seconds,
 	}
