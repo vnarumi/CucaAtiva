@@ -40,9 +40,8 @@ avulso): arara, arara_azul, baleia, bezerro, bufalo, burro, cabrito, cachorro,
 canario, chita, coruja, esquilo, golfinho, hipopotamo, leao_marinho, macaco, onca,
 pardal, pato, periquito, pinguim, rinoceronte, sapo, spitz, tigre, vespa.
 
-**Freesound** (conferir a licença; se for CC BY, é obrigatório citar o autor, e se for
-NC não pode ser usado em app publicado):
+**Freesound** (CC0, sem obrigação de crédito; registrado por transparência):
 
-| Animal | Link da página | Autor | Licença |
+| Animal | Arquivo original | Autor | Licença |
 |---|---|---|---|
-| zebra | | | |
+| zebra | [Zebras - Grant's Zebra Braying](https://freesound.org/s/850661/) | TheKingOfGeeks360 | CC0 |
