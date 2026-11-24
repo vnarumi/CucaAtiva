@@ -57,7 +57,7 @@ func start_game(new_difficulty: String) -> void:
 	elapsed_seconds = 0.0
 	is_running = true
 	board = BoardGenerator.generate(difficulty)
-	card_icons = MemoryCardIcons.pick(board.size() / 2, difficulty)
+	card_icons = MemoryCardIcons.pick(int(board.size() / 2.0), difficulty)
 	score_changed.emit(score)
 
 
@@ -80,12 +80,12 @@ func restore_state(state: Dictionary) -> void:
 		card_icons.append(str(p))
 	# Saves antigos não têm os ícones (ou apontam pra fotos que não existem
 	# mais): sorteia de novo (as figuras mudam só nesse caso).
-	var icons_ok := card_icons.size() >= board.size() / 2
+	var icons_ok := card_icons.size() >= int(board.size() / 2.0)
 	for p in card_icons:
 		if not ResourceLoader.exists(p):
 			icons_ok = false
 	if not icons_ok:
-		card_icons = MemoryCardIcons.pick(board.size() / 2, difficulty)
+		card_icons = MemoryCardIcons.pick(int(board.size() / 2.0), difficulty)
 	score = int(state.get("score", 0))
 	combo_streak = int(state.get("combo_streak", 0))
 	hints_used = int(state.get("hints_used", 0))

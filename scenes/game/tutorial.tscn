@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://1a3e5x516j2w"]
 
-[ext_resource type="Theme" uid="uid://ioydbkdykfmq" path="res://assets/theme/base_theme.tres" id="1_g8ooi"]
+[ext_resource type="Theme" uid="uid://b5x4p43ewn0fj" path="res://assets/theme/base_theme.tres" id="1_g8ooi"]
 [ext_resource type="Script" uid="uid://bkm5xgguct00i" path="res://scripts/ui/tutorial.gd" id="2_5bk5s"]
 [ext_resource type="FontFile" uid="uid://dykcomcv4lr1" path="res://assets/fonts/FredokaOne-Regular.ttf" id="3_font"]
 
