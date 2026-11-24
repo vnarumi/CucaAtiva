@@ -5,7 +5,6 @@ Os arquivos CC BY exigem atribuição (autor + licença), listada abaixo.
 
 | Animal | Arquivo original | Autor | Licença |
 |---|---|---|---|
-| urso | [Yellowstone sound library - Grizzly Bears Roar - 001.mp3](https://commons.wikimedia.org/wiki/File:Yellowstone_sound_library_-_Grizzly_Bears_Roar_-_001.mp3) | NPS &amp; MSU Acoustic Atlas / Jennifer Jerrett | Public domain |
 | elefante | [Elephant voice - trumpeting.ogg](https://commons.wikimedia.org/wiki/File:Elephant_voice_-_trumpeting.ogg) | தகவலுழவன் | CC0 |
 | gato | [Maullido de gata hembra joven.ogg](https://commons.wikimedia.org/wiki/File:Maullido_de_gata_hembra_joven.ogg) | George Miquilena | CC0 |
 | porco | [Pig grunt - Erdie.ogg](https://commons.wikimedia.org/wiki/File:Pig_grunt_-_Erdie.ogg) | erdie | CC BY 3.0 |
@@ -38,7 +37,8 @@ estão guardados fora do projeto.
 necessidade de dar crédito ao autor; não pode ser redistribuído como arquivo de som
 avulso): arara, arara_azul, baleia, bezerro, bufalo, burro, cabrito, cachorro,
 canario, chita, coruja, esquilo, golfinho, hipopotamo, leao_marinho, macaco, onca,
-pardal, pato, periquito, pinguim, rinoceronte, sapo, spitz, tigre, vespa.
+pardal, pato, periquito, pinguim, rinoceronte, sapo, spitz, tigre, urso (substituiu a gravação
+antiga do Yellowstone, que era fraca demais), vespa.
 
 **Freesound** (CC0, sem obrigação de crédito; registrado por transparência):
 
