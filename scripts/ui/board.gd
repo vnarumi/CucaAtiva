@@ -17,7 +17,10 @@ const MISMATCH_REVEAL_SECONDS := 0.6
 const HINT_HIGHLIGHT_SECONDS := 2.5
 const HINT_FRAME_COLOR := Color("FFD23F")
 const HINT_FRAME_WIDTH := 8
-const HINT_PULSE_SECONDS := 0.6
+## Duração de um ciclo (balanço + pulsada) e amplitude do balanço, em graus —
+## menor que o balanço do erro (6°) pra ficar suave.
+const HINT_CYCLE_SECONDS := 0.9
+const HINT_WOBBLE_DEGREES := 4.0
 const PRESS_SCALE := 0.92
 const PRESS_ANIM_SECONDS := 0.08
 const DISABLED_MODULATE := Color(1, 1, 1, 0.5)
@@ -39,6 +42,8 @@ var _icons: Array[TextureRect] = []
 var _backs: Array[TextureRect] = []
 var _frames: Array[Panel] = []
 var _hint_tween: Tween
+var _hint_indices: Array[int] = []
+var _hint_id := 0
 var _pending_indices: Array[int] = []
 
 
@@ -190,6 +195,10 @@ func _reveal_card(index: int) -> void:
 	_backs[index].visible = false
 	_icons[index].visible = true
 	_frames[index].visible = false
+	# Carta virada "pra valer": sai do destaque da Dica (a outra do par continua).
+	if _hint_indices.has(index):
+		_hint_indices.erase(index)
+		_buttons[index].rotation_degrees = 0.0
 
 
 func _hide_card(index: int) -> void:
@@ -294,37 +303,47 @@ func _on_sair_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/main_menu/main_menu.tscn")
 
 
-## RF13/RN04: revela temporariamente um par ainda não encontrado.
+## RF13/RN04: destaca um par ainda não encontrado, sem revelar o animal: as 2
+## cartas ganham uma moldura amarela que pulsa e balançam de leve.
 func _on_dica_pressed() -> void:
 	var pair: Array = GameManager.use_hint()
 	if pair.is_empty():
 		return
 	_refresh_dica_button()
 	_clear_hint()
-	var frames: Array[Panel] = []
+	_hint_id += 1
+	var my_id := _hint_id
 	for i in pair:
 		_frames[i].visible = true
 		_frames[i].modulate.a = 1.0
-		frames.append(_frames[i])
-	# Pulsa de leve (só a opacidade da moldura, sem piscar forte).
+		_hint_indices.append(i)
 	_hint_tween = create_tween().set_loops()
-	for f in frames:
-		_hint_tween.parallel().tween_property(f, "modulate:a", 0.45, HINT_PULSE_SECONDS)
-	_hint_tween.chain()
-	for f in frames:
-		_hint_tween.parallel().tween_property(f, "modulate:a", 1.0, HINT_PULSE_SECONDS)
+	_hint_tween.tween_method(_apply_hint_anim, 0.0, TAU, HINT_CYCLE_SECONDS)
 	await get_tree().create_timer(HINT_HIGHLIGHT_SECONDS).timeout
-	for f in frames:
-		if is_instance_valid(f):
-			f.visible = false
-	if _hint_tween != null and _hint_tween.is_valid():
-		_hint_tween.kill()
+	# Se o jogador virou uma carta (ou pediu outra dica) nesse meio-tempo, o
+	# destaque já foi encerrado/substituído.
+	if my_id == _hint_id:
+		_clear_hint()
 
 
-## Apaga qualquer destaque de Dica em andamento.
+## Um ciclo da animação da Dica: `phase` vai de 0 a TAU. A carta oscila poucos
+## graus e a moldura clareia/escurece — tudo suave, nada de piscar forte.
+func _apply_hint_anim(phase: float) -> void:
+	for i in _hint_indices:
+		if i < _buttons.size() and is_instance_valid(_buttons[i]):
+			_buttons[i].rotation_degrees = sin(phase) * HINT_WOBBLE_DEGREES
+			_frames[i].modulate.a = 0.725 + 0.275 * cos(phase)
+
+
+## Encerra qualquer destaque de Dica em andamento e põe as cartas retas.
 func _clear_hint() -> void:
+	_hint_id += 1
 	if _hint_tween != null and _hint_tween.is_valid():
 		_hint_tween.kill()
+	for i in _hint_indices:
+		if i < _buttons.size() and is_instance_valid(_buttons[i]):
+			_buttons[i].rotation_degrees = 0.0
+	_hint_indices.clear()
 	for f in _frames:
 		if is_instance_valid(f):
 			f.visible = false
