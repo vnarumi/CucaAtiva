@@ -5,9 +5,12 @@ extends Control
 ## (#4ABA34) na opção selecionada — fiel ao protótipo (sem botões coloridos,
 ## sem slider).
 
+## Volume linear (0-1) de cada opção. "baixo" é a opção "Médio" da tela: 0,25
+## equivale a -12 dB, ou seja, soa bem mais baixo que o "alto" (0 dB). Com 0,5
+## (-6 dB) a diferença quase não dava pra perceber.
 const VOLUME_LEVELS := {
 	"mudo": 0.0,
-	"baixo": 0.5,
+	"baixo": 0.25,
 	"alto": 1.0,
 }
 
