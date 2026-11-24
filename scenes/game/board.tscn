@@ -23,6 +23,25 @@ content_margin_top = 4.0
 content_margin_right = 12.0
 content_margin_bottom = 4.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rank"]
+bg_color = Color(1, 0.8235294, 0.24705882, 1)
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(0.043137256, 0.16078432, 0.4509804, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+content_margin_left = 24.0
+content_margin_top = 10.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 8
+shadow_offset = Vector2(0, 5)
+
 [node name="Board" type="Control" unique_id=365468201]
 layout_mode = 3
 anchors_preset = 15
@@ -400,17 +419,28 @@ theme_override_font_sizes/font_size = 32
 text = "Tempo: 00:00"
 horizontal_alignment = 1
 
-[node name="RankLabel" type="Label" parent="WinOverlay/Layout"]
+[node name="RankBadge" type="PanelContainer" parent="WinOverlay/Layout"]
+custom_minimum_size = Vector2(348, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_rank")
+
+[node name="TextBox" type="VBoxContainer" parent="WinOverlay/Layout/RankBadge"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="RankTitle" type="Label" parent="WinOverlay/Layout/RankBadge/TextBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.043137256, 0.16078432, 0.4509804, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.3019608)
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
-theme_override_constants/shadow_offset_x = 3
-theme_override_constants/shadow_offset_y = 4
-theme_override_constants/outline_size = 20
-theme_override_constants/shadow_outline_size = 20
 theme_override_fonts/font = ExtResource("3_63l6i")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 52
+horizontal_alignment = 1
+
+[node name="RankSubtitle" type="Label" parent="WinOverlay/Layout/RankBadge/TextBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.043137256, 0.16078432, 0.4509804, 1)
+theme_override_fonts/font = ExtResource("3_63l6i")
+theme_override_font_sizes/font_size = 23
 horizontal_alignment = 1
 autowrap_mode = 3
 

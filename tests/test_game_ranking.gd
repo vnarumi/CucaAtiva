@@ -44,6 +44,12 @@ func test_identical_games_do_not_pass_each_other() -> void:
 	assert_eq(p["total"], 2)
 
 
+func test_badge_parts() -> void:
+	assert_eq(GameRanking.parts(1, 1, "facil"), ["1º LUGAR", "Você abriu o ranking do Fácil!"])
+	assert_eq(GameRanking.parts(1, 6, "dificil"), ["1º LUGAR", "Novo recorde no Difícil!"])
+	assert_eq(GameRanking.parts(3, 8, "medio"), ["3º LUGAR", "entre 8 partidas no Médio"])
+
+
 func test_messages_are_positive() -> void:
 	assert_eq(GameRanking.message(1, 1, "facil"), "Você abriu o ranking do Fácil: 1º lugar!")
 	assert_eq(GameRanking.message(1, 5, "dificil"), "Novo recorde! 1º lugar no ranking do Difícil!")

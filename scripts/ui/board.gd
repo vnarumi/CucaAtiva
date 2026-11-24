@@ -48,7 +48,9 @@ const CARD_BACK_TEXTURE := preload("res://assets/icons/cards/verso.svg")
 @onready var win_overlay: Control = $WinOverlay
 @onready var win_score_label: Label = $WinOverlay/Layout/ScoreLabel
 @onready var win_time_label: Label = $WinOverlay/Layout/TimeLabel
-@onready var win_rank_label: Label = $WinOverlay/Layout/RankLabel
+@onready var rank_badge: Control = $WinOverlay/Layout/RankBadge
+@onready var rank_title: Label = $WinOverlay/Layout/RankBadge/TextBox/RankTitle
+@onready var rank_subtitle: Label = $WinOverlay/Layout/RankBadge/TextBox/RankSubtitle
 
 var _buttons: Array[Button] = []
 var _icons: Array[TextureRect] = []
@@ -325,7 +327,9 @@ func _on_game_won() -> void:
 	win_time_label.text = "Tempo: %s" % TimeFormat.mmss(GameManager.elapsed_seconds)
 	# Posição no ranking do nível (SaveManager já gravou esta vitória no histórico).
 	var pos := GameRanking.position(SaveManager.history, GameManager.difficulty, GameManager.score, GameManager.elapsed_seconds)
-	win_rank_label.text = GameRanking.message(pos["rank"], pos["total"], GameManager.difficulty)
+	var badge := GameRanking.parts(pos["rank"], pos["total"], GameManager.difficulty)
+	rank_title.text = badge[0]
+	rank_subtitle.text = badge[1]
 	# Espera um pouco pra o jogador ver a dança, as partículas e a legenda do
 	# último par (e ouvir o som do animal) antes da tela de Parabéns.
 	await get_tree().create_timer(WIN_SCREEN_DELAY_SECONDS).timeout
@@ -335,6 +339,11 @@ func _on_game_won() -> void:
 	if not is_inside_tree():
 		return
 	win_overlay.visible = true
+	# O selo da colocação "estoura" de leve ao aparecer, pra chamar a atenção.
+	await get_tree().process_frame
+	rank_badge.pivot_offset = rank_badge.size / 2.0
+	rank_badge.scale = Vector2.ONE * 0.6
+	create_tween().tween_property(rank_badge, "scale", Vector2.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 ## RF06: abre o menu de pausa. Pausar a árvore (get_tree().paused) já

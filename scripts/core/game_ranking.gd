@@ -26,7 +26,19 @@ static func position(history: Array, difficulty: String, score: int, time_second
 	return {"rank": better + 1, "total": max(total, better + 1)}
 
 
-## Texto positivo para a tela de Parabéns (nada punitivo, RNF04).
+## Selo da tela de Parabéns, em duas linhas: ["3º LUGAR", "entre 4 partidas no Fácil"].
+## Tom sempre positivo (nada punitivo, RNF04).
+static func parts(rank: int, total: int, difficulty: String) -> Array:
+	var level: String = LEVEL_NAMES.get(difficulty, difficulty)
+	var title := "%dº LUGAR" % rank
+	if rank == 1 and total <= 1:
+		return [title, "Você abriu o ranking do %s!" % level]
+	if rank == 1:
+		return [title, "Novo recorde no %s!" % level]
+	return [title, "entre %d partidas no %s" % [total, level]]
+
+
+## Texto positivo numa linha só (nada punitivo, RNF04).
 static func message(rank: int, total: int, difficulty: String) -> String:
 	var level: String = LEVEL_NAMES.get(difficulty, difficulty)
 	if rank == 1 and total <= 1:
