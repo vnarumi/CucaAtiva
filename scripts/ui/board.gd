@@ -9,14 +9,18 @@ const MIN_CARD_SIZE := 48.0
 const MAX_CARD_SIZE := 96.0
 const GRID_SEPARATION := 2.0
 const GRID_SIDE_MARGIN := 32.0
+## Margem do topo (offset_top do VBoxContainer) + folga.
+const GRID_VERTICAL_MARGIN := 40.0
 const MISMATCH_REVEAL_SECONDS := 0.6
 const HINT_REVEAL_SECONDS := 1.5
 const PRESS_SCALE := 0.92
 const PRESS_ANIM_SECONDS := 0.08
 const DISABLED_MODULATE := Color(1, 1, 1, 0.5)
+## Verso das cartas (a face virada para baixo).
+const CARD_BACK_TEXTURE := preload("res://assets/icons/cards/verso.svg")
 
 @onready var score_value_label: Label = $VBoxContainer/ScoreGroup/ScoreValueLabel
-@onready var grid: GridContainer = $VBoxContainer/CardGrid
+@onready var grid: GridContainer = $VBoxContainer/GridScroll/GridCenter/CardGrid
 @onready var pausa_button: Button = $VBoxContainer/Footer/PausaButton
 @onready var dica_button: Button = $VBoxContainer/Footer/DicaButton
 @onready var dica_count_label: Label = $VBoxContainer/Footer/DicaButton/Count
@@ -27,6 +31,7 @@ const DISABLED_MODULATE := Color(1, 1, 1, 0.5)
 
 var _buttons: Array[Button] = []
 var _icons: Array[TextureRect] = []
+var _backs: Array[TextureRect] = []
 var _pending_indices: Array[int] = []
 
 
@@ -77,20 +82,27 @@ func _build_grid() -> void:
 		child.queue_free()
 	_buttons.clear()
 	_icons.clear()
+	_backs.clear()
 	_pending_indices.clear()
 	var columns := _columns_for(GameManager.board.size())
 	grid.columns = columns
 	grid.add_theme_constant_override("h_separation", int(GRID_SEPARATION))
 	grid.add_theme_constant_override("v_separation", int(GRID_SEPARATION))
-	var card_size := _card_size_for(columns)
-	var pairs: int = GameManager.board.size() / 2
-	var icon_paths: Array = MemoryCardIcons.pick(pairs)
+	var card_size := _card_size_for(columns, ceili(GameManager.board.size() / float(columns)))
+	var icon_paths: Array = GameManager.card_icons
 	for i in GameManager.board.size():
 		var btn := Button.new()
 		btn.custom_minimum_size = card_size
 		btn.pivot_offset = card_size / 2.0
 		btn.theme_type_variation = &"CardButton"
-		btn.text = "?"
+		var back := TextureRect.new()
+		back.texture = CARD_BACK_TEXTURE
+		back.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		back.stretch_mode = TextureRect.STRETCH_SCALE
+		back.anchor_right = 1.0
+		back.anchor_bottom = 1.0
+		back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		btn.add_child(back)
 		var icon := TextureRect.new()
 		icon.texture = load(icon_paths[GameManager.board[i]])
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -106,19 +118,38 @@ func _build_grid() -> void:
 		btn.add_child(icon)
 		if GameManager.matched.has(i):
 			btn.disabled = true
-			btn.text = ""
+			back.visible = false
 			icon.visible = true
 		btn.pressed.connect(_on_card_pressed.bind(i))
 		grid.add_child(btn)
 		_buttons.append(btn)
 		_icons.append(icon)
+		_backs.append(back)
 
 
-func _card_size_for(columns: int) -> Vector2:
-	var viewport_width: float = get_viewport_rect().size.x
-	var available: float = viewport_width - GRID_SIDE_MARGIN - GRID_SEPARATION * (columns - 1)
-	var side: float = clamp(floor(available / columns), MIN_CARD_SIZE, MAX_CARD_SIZE)
+## O lado da carta é o menor entre o que cabe na largura e o que cabe na altura
+## que sobra depois do cabeçalho e do rodapé: assim o tabuleiro inteiro aparece
+## sem rolar a tela. Só em telas muito baixas, onde as cartas ficariam abaixo do
+## mínimo de toque (MIN_CARD_SIZE), a rolagem do GridScroll entra como reserva.
+func _card_size_for(columns: int, rows: int) -> Vector2:
+	var viewport: Vector2 = get_viewport_rect().size
+	var avail_w: float = viewport.x - GRID_SIDE_MARGIN - GRID_SEPARATION * (columns - 1)
+	var avail_h: float = viewport.y - _reserved_height() - GRID_SEPARATION * (rows - 1)
+	var side: float = floor(min(avail_w / columns, avail_h / rows))
+	side = clamp(side, MIN_CARD_SIZE, MAX_CARD_SIZE)
 	return Vector2(side, side)
+
+
+## Altura ocupada pelo que não é a grade: pontuação, espaçador, rodapé e as
+## separações do VBoxContainer.
+func _reserved_height() -> float:
+	var box: VBoxContainer = $VBoxContainer
+	var reserved := 0.0
+	for child in box.get_children():
+		if child != $VBoxContainer/GridScroll:
+			reserved += child.get_combined_minimum_size().y
+	reserved += box.get_theme_constant("separation") * (box.get_child_count() - 1)
+	return reserved + GRID_VERTICAL_MARGIN
 
 
 func _columns_for(card_count: int) -> int:
@@ -126,20 +157,20 @@ func _columns_for(card_count: int) -> int:
 		16:
 			return 4
 		30:
-			return 6
+			return 5
 		40:
-			return 8
+			return 5
 		_:
 			return 4
 
 
 func _reveal_card(index: int) -> void:
-	_buttons[index].text = ""
+	_backs[index].visible = false
 	_icons[index].visible = true
 
 
 func _hide_card(index: int) -> void:
-	_buttons[index].text = "?"
+	_backs[index].visible = true
 	_icons[index].visible = false
 
 
@@ -159,8 +190,10 @@ func _on_card_pressed(index: int) -> void:
 		_pending_indices.erase(index)
 
 
-func _on_match_found(_pair_id: int) -> void:
+func _on_match_found(pair_id: int) -> void:
 	AudioManager.play_correct()
+	if pair_id >= 0 and pair_id < GameManager.card_icons.size():
+		AudioManager.play_animal(GameManager.card_icons[pair_id])
 	for i in _pending_indices:
 		_buttons[i].disabled = true
 		_pop_correct(_buttons[i])

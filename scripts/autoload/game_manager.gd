@@ -22,6 +22,9 @@ var hints_used: int = 0
 
 ## Array de ids de carta (2x por par), na ordem embaralhada do tabuleiro atual.
 var board: Array = []
+## Caminhos dos ícones sorteados para a partida (índice = id do par). Guardado
+## aqui (e no save) para que retomar a partida mostre as mesmas figuras.
+var card_icons: Array = []
 ## Índices do board já resolvidos como par encontrado.
 var matched: Dictionary = {}
 ## Nº de pares já encontrados na partida atual (RN02).
@@ -54,6 +57,7 @@ func start_game(new_difficulty: String) -> void:
 	elapsed_seconds = 0.0
 	is_running = true
 	board = BoardGenerator.generate(difficulty)
+	card_icons = MemoryCardIcons.pick(board.size() / 2, difficulty)
 	score_changed.emit(score)
 
 
@@ -71,6 +75,17 @@ func restore_state(state: Dictionary) -> void:
 	board = []
 	for v in state.get("board", []):
 		board.append(int(v))
+	card_icons = []
+	for p in state.get("card_icons", []):
+		card_icons.append(str(p))
+	# Saves antigos não têm os ícones (ou apontam pra fotos que não existem
+	# mais): sorteia de novo (as figuras mudam só nesse caso).
+	var icons_ok := card_icons.size() >= board.size() / 2
+	for p in card_icons:
+		if not ResourceLoader.exists(p):
+			icons_ok = false
+	if not icons_ok:
+		card_icons = MemoryCardIcons.pick(board.size() / 2, difficulty)
 	score = int(state.get("score", 0))
 	combo_streak = int(state.get("combo_streak", 0))
 	hints_used = int(state.get("hints_used", 0))

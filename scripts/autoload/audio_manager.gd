@@ -7,7 +7,20 @@ const MIX_RATE := 22050
 const AMPLITUDE := 0.35
 const FADE_SECONDS := 0.01
 
+## Pasta dos sons de animais: um arquivo por animal, com o mesmo nome do ícone
+## (ex.: cards/cachorro.jpg -> animals/cachorro.ogg).
+const ANIMAL_SOUND_DIR := "res://assets/audio/animals/"
+const ANIMAL_SOUND_EXTENSIONS := ["ogg", "wav", "mp3"]
+## Espera o tom de acerto terminar (~0.2s) antes de soltar o som do animal.
+const ANIMAL_SOUND_DELAY := 0.25
+## Sons mais longos que isso são cortados (com fade-out) — o acerto não deve
+## virar um barulho longo (RNF04).
+const ANIMAL_SOUND_MAX_SECONDS := 3.0
+const ANIMAL_SOUND_FADE_SECONDS := 0.3
+
 var _sfx_player: AudioStreamPlayer
+var _animal_player: AudioStreamPlayer
+var _animal_streams: Dictionary = {}
 var _correct_stream: AudioStreamWAV
 var _incorrect_stream: AudioStreamWAV
 var _master_volume: float = 1.0
@@ -16,6 +29,8 @@ var _master_volume: float = 1.0
 func _ready() -> void:
 	_sfx_player = AudioStreamPlayer.new()
 	add_child(_sfx_player)
+	_animal_player = AudioStreamPlayer.new()
+	add_child(_animal_player)
 	_correct_stream = _build_stream(_tone(660.0, 0.09) + _tone(880.0, 0.11))
 	_incorrect_stream = _build_stream(_tone(240.0, 0.22))
 
@@ -24,6 +39,48 @@ func _ready() -> void:
 func play_correct() -> void:
 	_sfx_player.stream = _correct_stream
 	_sfx_player.play()
+
+
+## Toca o som do animal do ícone (caminho da imagem da carta) depois do tom de
+## acerto. Se não houver arquivo de som para esse animal, não faz nada.
+func play_animal(icon_path: String) -> void:
+	var stream := _get_animal_stream(icon_path)
+	if stream == null:
+		return
+	await get_tree().create_timer(ANIMAL_SOUND_DELAY).timeout
+	_animal_player.stream = stream
+	_animal_player.volume_db = 0.0
+	_animal_player.play()
+	if stream.get_length() > ANIMAL_SOUND_MAX_SECONDS:
+		_cut_animal_sound()
+
+
+## Corta o som atual depois de ANIMAL_SOUND_MAX_SECONDS com um fade-out curto.
+## Ignora se outro som de animal já começou nesse meio-tempo.
+func _cut_animal_sound() -> void:
+	var current := _animal_player.stream
+	await get_tree().create_timer(ANIMAL_SOUND_MAX_SECONDS - ANIMAL_SOUND_FADE_SECONDS).timeout
+	if _animal_player.stream != current or not _animal_player.playing:
+		return
+	var tween := create_tween()
+	tween.tween_property(_animal_player, "volume_db", -40.0, ANIMAL_SOUND_FADE_SECONDS)
+	await tween.finished
+	if _animal_player.stream == current:
+		_animal_player.stop()
+
+
+func _get_animal_stream(icon_path: String) -> AudioStream:
+	var animal := icon_path.get_file().get_basename()
+	if _animal_streams.has(animal):
+		return _animal_streams[animal]
+	var stream: AudioStream = null
+	for ext in ANIMAL_SOUND_EXTENSIONS:
+		var path: String = ANIMAL_SOUND_DIR + animal + "." + ext
+		if ResourceLoader.exists(path):
+			stream = load(path)
+			break
+	_animal_streams[animal] = stream
+	return stream
 
 
 ## RF03: toca o feedback sonoro de erro (par incorreto) — som suave, não é

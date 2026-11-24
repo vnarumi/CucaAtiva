@@ -93,6 +93,7 @@ func autosave_in_progress() -> void:
 	in_progress = {
 		"difficulty": GameManager.difficulty,
 		"board": GameManager.board,
+		"card_icons": GameManager.card_icons,
 		"score": GameManager.score,
 		"combo_streak": GameManager.combo_streak,
 		"hints_used": GameManager.hints_used,
