@@ -64,12 +64,18 @@ const INFO := {
 }
 
 
-## Legenda de um animal a partir do caminho da foto
-## (ex.: ".../vaca.jpg" -> "Vaca – Muuu!"). Animal sem cadastro devolve ""
-## (nenhuma legenda).
-static func caption(icon_path: String) -> String:
+## Nome e descrição do som a partir do caminho da foto
+## (ex.: ".../vaca.jpg" -> ["Vaca", "Muuu!"]). Animal sem cadastro devolve [].
+static func parts(icon_path: String) -> Array:
 	var key := icon_path.get_file().get_basename()
 	if not INFO.has(key):
+		return []
+	return INFO[key].duplicate()
+
+
+## Legenda numa linha só (ex.: "Vaca – Muuu!"); "" se o animal não está cadastrado.
+static func caption(icon_path: String) -> String:
+	var p := parts(icon_path)
+	if p.is_empty():
 		return ""
-	var entry: Array = INFO[key]
-	return "%s – %s" % [entry[0], entry[1]]
+	return "%s – %s" % [p[0], p[1]]

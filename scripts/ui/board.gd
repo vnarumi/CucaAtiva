@@ -17,6 +17,8 @@ const MISMATCH_REVEAL_SECONDS := 0.6
 ## Legenda do som do animal (audiodescrição) e partículas do acerto.
 const CAPTION_FADE_SECONDS := 0.25
 const CAPTION_HOLD_SECONDS := 2.6
+## Tempo entre o último par e a tela de Parabéns (dá pra ver/ouvir o acerto).
+const WIN_SCREEN_DELAY_SECONDS := 3.2
 const PARTICLE_COUNT := 14
 const PARTICLE_LIFETIME := 1.1
 
@@ -38,7 +40,10 @@ const CARD_BACK_TEXTURE := preload("res://assets/icons/cards/verso.svg")
 @onready var pausa_button: Button = $VBoxContainer/Footer/PausaButton
 @onready var dica_button: Button = $VBoxContainer/Footer/DicaButton
 @onready var dica_count_label: Label = $VBoxContainer/Footer/DicaButton/Count
-@onready var sound_caption: Label = $VBoxContainer/SoundCaption
+@onready var sound_caption: Control = $VBoxContainer/SoundCaption
+@onready var caption_pill: Control = $VBoxContainer/SoundCaption/Pill
+@onready var caption_name: Label = $VBoxContainer/SoundCaption/Pill/TextBox/NameLabel
+@onready var caption_sound: Label = $VBoxContainer/SoundCaption/Pill/TextBox/SoundLabel
 @onready var pause_overlay: Control = $PauseOverlay
 @onready var win_overlay: Control = $WinOverlay
 @onready var win_score_label: Label = $WinOverlay/Layout/ScoreLabel
@@ -252,7 +257,7 @@ func _on_match_found(pair_id: int) -> void:
 	if pair_id >= 0 and pair_id < GameManager.card_icons.size():
 		var icon_path: String = GameManager.card_icons[pair_id]
 		AudioManager.play_animal(icon_path)
-		_show_sound_caption(AnimalInfo.caption(icon_path))
+		_show_sound_caption(AnimalInfo.parts(icon_path))
 	for i in _pending_indices:
 		_buttons[i].disabled = true
 		_dance_correct(_buttons[i])
@@ -262,17 +267,23 @@ func _on_match_found(pair_id: int) -> void:
 
 
 ## Legenda do som do animal (audiodescrição): aparece, fica um tempo e some.
-func _show_sound_caption(text: String) -> void:
-	if text.is_empty():
+func _show_sound_caption(parts: Array) -> void:
+	if parts.is_empty():
 		return
-	sound_caption.text = text
+	caption_name.text = parts[0]
+	caption_sound.text = parts[1]
 	if _caption_tween != null and _caption_tween.is_valid():
 		_caption_tween.kill()
+	# A etiqueta "estoura" de leve ao aparecer (pop), pra chamar a atenção.
+	caption_pill.pivot_offset = caption_pill.size / 2.0
+	caption_pill.scale = Vector2.ONE * 0.85
 	sound_caption.modulate.a = 0.0
 	_caption_tween = create_tween()
+	_caption_tween.set_parallel(true)
 	_caption_tween.tween_property(sound_caption, "modulate:a", 1.0, CAPTION_FADE_SECONDS)
-	_caption_tween.tween_interval(CAPTION_HOLD_SECONDS)
-	_caption_tween.tween_property(sound_caption, "modulate:a", 0.0, CAPTION_FADE_SECONDS)
+	_caption_tween.tween_property(caption_pill, "scale", Vector2.ONE, CAPTION_FADE_SECONDS * 1.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_caption_tween.chain().tween_interval(CAPTION_HOLD_SECONDS)
+	_caption_tween.chain().tween_property(sound_caption, "modulate:a", 0.0, CAPTION_FADE_SECONDS)
 
 
 func _on_match_failed() -> void:
@@ -300,6 +311,11 @@ func _on_game_won() -> void:
 	_set_image_button_enabled(dica_button, false)
 	win_score_label.text = "Pontuação: %d" % GameManager.score
 	win_time_label.text = "Tempo: %s" % TimeFormat.mmss(GameManager.elapsed_seconds)
+	# Espera um pouco pra o jogador ver a dança, as partículas e a legenda do
+	# último par (e ouvir o som do animal) antes da tela de Parabéns.
+	await get_tree().create_timer(WIN_SCREEN_DELAY_SECONDS).timeout
+	if not is_inside_tree():
+		return
 	win_overlay.visible = true
 
 
