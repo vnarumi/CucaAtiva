@@ -466,13 +466,4 @@ theme_override_font_sizes/font_size = 28
 text = "VOLTAR"
 icon = ExtResource("7_ll5u5")
 
-[node name="CreditsLabel" type="Label" parent="Layout"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("3_i1rig")
-theme_override_font_sizes/font_size = 18
-text = "Créditos: som do porco por erdie (CC BY 3.0, Wikimedia Commons). Demais sons de domínio público, CC0 ou Pixabay. Vozes: Piper (voz Faber, CC0)."
-horizontal_alignment = 1
-autowrap_mode = 3
-
 [connection signal="pressed" from="Layout/VoltarWrapper/VoltarButton" to="." method="_on_voltar_pressed"]
